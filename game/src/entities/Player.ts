@@ -38,6 +38,7 @@ export class Player extends Phaser.GameObjects.Container {
 
     piecesInCenter: Piece[] = [];
     exploding: boolean;
+    lastSplashAt: number = -100;
 
     constructor(
         scene: MainScene,
@@ -92,8 +93,37 @@ export class Player extends Phaser.GameObjects.Container {
         this.clawTip.setOrigin(0.5, 1)
         this.clawTip.setDepth(1800)
 
+        this.setDepth(600);
 
-        // scene.add.existing(this);
+        const particles = this.scene.add.particles('splash-particle-1')
+
+        particles.createEmitter({
+            follow: this,
+            emitZone: {
+                type: 'edge',
+                source: new Phaser.Geom.Ellipse(0, 0, 25, 18),
+                quantity: 40
+            },
+            frequency: 10,
+            speed: 30,
+            blendMode: Phaser.BlendModes.ADD,
+            alpha: 0.3,
+            lifespan: 600
+        });
+
+        particles.createEmitter({
+            follow: this,
+            emitZone: {
+                type: 'edge',
+                source: new Phaser.Geom.Ellipse(0, 0, 25, 18),
+                quantity: 40
+            },
+            frequency: 5,
+            speed: 30,
+            blendMode: Phaser.BlendModes.ADD,
+            alpha: 0.6,
+            lifespan: 600
+        });
     }
 
     explode() {
@@ -342,5 +372,13 @@ export class Player extends Phaser.GameObjects.Container {
 
         this.baseRotationDelta = helpers.lerp(this.baseRotationDelta, this.targetBaseRotationDelta, delta * 0.075);
         this.baseRotation = t + this.baseRotationDelta;
+
+        if (time - this.lastSplashAt > 250) {
+            this.lastSplashAt = time;
+            for(let tp of this.tubePieces) {
+                if (Math.random() > 0.5) {
+                }
+            }
+        }
     }
 }

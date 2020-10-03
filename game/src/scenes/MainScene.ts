@@ -7,6 +7,7 @@ import { BaseScene } from './BaseScene';
 import { Piece, PIECES, PieceType } from '../entities/Piece';
 import helpers from '../helpers';
 import { GameDirector } from '../entities/GameDirector';
+import { Order } from '../entities/Order';
 
 const SCREEN_TRANSITION_TIME = 200;
 const BASE_CONVEYOR_SPEED = 12000;
@@ -20,6 +21,7 @@ export class MainScene extends BaseScene {
     space: Phaser.Input.Keyboard.Key;
     conveyorPieces: Piece[] = [];
     pieces: Piece[] = [];
+    orders: Order[] = [];
     director: GameDirector;
 
     create() {
@@ -52,9 +54,6 @@ export class MainScene extends BaseScene {
         conveyorBase.setDepth(-300000000000)
         this.centerOriginSprite("bg-water-1");
         this.centerOriginSprite("top");
-        // this.waterSpin1 = this.centerOriginSprite("bg-water-spin-1", globals.WIDTH * 0.3, 0)
-        this.centerOriginSprite("bg-outer-1");
-        // this.centerSprite("center-plate");
 
         this.player = new Player(this, 6500);
         debugService.init(this);
@@ -88,7 +87,20 @@ export class MainScene extends BaseScene {
             delay: 0,
             repeat: 0,
             repeatDelay: 0
-        })
+        });
+
+        this.anims.create({
+            key: 'splash',
+            frames: this.anims.generateFrameNumbers('splash', {
+                first: 38,
+                end: 58
+            }),
+            frameRate: 60,
+            skipMissedFrames: true,
+            delay: 0,
+            repeat: 0,
+            repeatDelay: 0
+        });
     }
 
     update(time: number, delta: number) {
@@ -107,6 +119,10 @@ export class MainScene extends BaseScene {
             p.update(time, delta)
         }
         this.conveyorPieces = this.conveyorPieces.filter(p => !p.dead);
+
+        for(let u of this.orders) {
+            u.update(time, delta);
+        }
     }
 
 
@@ -136,6 +152,8 @@ export class MainScene extends BaseScene {
         this.load.image("rocket-tip-1", "/assets/export-rocket-tip-1.png");
         this.load.image("top", "/assets/export-top.png");
         this.load.image("water", "/assets/export-water.png");
+        this.load.image("order-ui", "/assets/export-order-ui.png");
+        this.load.image("splash-particle-1", "/assets/export-splash-particle-1.png");
 
 
         this.load.spritesheet("explode", "/assets/animations/explode.png", {
@@ -143,6 +161,13 @@ export class MainScene extends BaseScene {
             frameHeight: 100,
             startFrame: 30,
             endFrame: 69
+        });
+
+        this.load.spritesheet("splash", "/assets/animations/water-splash.png", {
+            frameWidth: 100,
+            frameHeight: 100,
+            startFrame: 36,
+            endFrame: 58
         });
     }
 }

@@ -1,17 +1,9 @@
+import { matches } from 'lodash';
 import * as Phaser from 'phaser';
 import helpers from '../helpers';
 import { MainScene } from "../scenes/MainScene";
+import { Order, Recipe, RECIPES } from './Order';
 import { GrabbablePieceType, Piece, PIECES, PieceType } from './Piece';
-
-interface Recipe {
-    base: PieceType;
-    mid: PieceType;
-    tip: PieceType;
-}
-
-export const RECIPES = {
-    BASIC: { base: PIECES.base1, mid: PIECES.mid1, tip: PIECES.tip1 } as Recipe
-}
 
 export class GameDirector {
     availablePiecePool: PieceType[] = [
@@ -21,7 +13,8 @@ export class GameDirector {
     ];
 
     recipes: Recipe[] = [
-        RECIPES.BASIC
+        RECIPES.BASIC,
+        RECIPES.BASIC_FULL
     ];
 
     pieceSpawnRate = 750;
@@ -36,7 +29,7 @@ export class GameDirector {
             delay: 16,
         })
     }
-    
+
     tick() {
         const t = this.scene.time.now;
         if (t - this.lastSpawnedPieceAt > this.pieceSpawnRate) {
@@ -44,22 +37,40 @@ export class GameDirector {
             this.spawnPiece();
         }
     }
-    
+
     validateCenter() {
         const pieces = this.scene.player.piecesInCenter;
 
-        if (pieces.length > 3) {
-            return false;
+        if (pieces.length === 0) return true;
+
+        // Find at least 1 matching order
+        for (let order of this.scene.orders) {
+            let matchesOrder = true;
+
+            for (let i = 0; i < pieces.length; i++) {
+                const recipePieces = order.recipe.pieces;
+                if (i >= recipePieces.length) continue;
+                if (recipePieces[i] != pieces[i].pieceType) {
+                    matchesOrder = false;
+                }
+            }
+
+            if (matchesOrder) {
+                this.completeOrder(order);
+                return true;
+            }
         }
 
-        console.log('pieces[0]?.pieceType.category', pieces[0]?.pieceType.category);
-        
+        return false;
+    }
 
-        if (pieces.length > 0 && pieces[0].pieceType.category !== 'base') return false;
-        if (pieces.length > 1 && pieces[1].pieceType.category !== 'middle') return false;
-        if (pieces.length > 2 && pieces[2].pieceType.category !== 'tip') return false;
+    completeOrder(order: Order) {
+        console.log("Order complete")
+    }
 
-        return true;
+    newOrder() {
+        const order = new Order(this.scene, helpers.sample(this.recipes), 15000);
+        this.scene.orders.push(order);
     }
 
     spawnPiece() {
@@ -67,6 +78,10 @@ export class GameDirector {
 
         if (!this.validateCenter()) {
             this.scene.player.explode();
+        }
+
+        if (this.scene.orders.length < 1) {
+            this.newOrder();
         }
     }
 }

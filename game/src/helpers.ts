@@ -58,6 +58,16 @@ function spawnExplosion(x: number, y: number, scene: Phaser.Scene) {
     spr.setDepth(100000000);
 }
 
+function splash(x: number, y: number, depth: number, scene: Phaser.Scene) {
+    const spr = scene.add.sprite(x, y, 'splash');
+    spr.play('splash', true, 38);
+    spr.rotation = Math.random () * 2 * Math.PI;
+    const s = 0.5 + (Math.random() * 0.4);
+    spr.setOrigin(0.5, 0.5);
+    spr.setScale(s, s);
+    spr.setDepth(depth);
+}
+
 function sample<T>(arr: T[]): T {
     return arr[Math.floor(Math.random()*arr.length)];
 }
@@ -68,5 +78,6 @@ export default {
     lerpRadians,
     dist,
     explosion,
-    sample
+    sample,
+    splash
 }
