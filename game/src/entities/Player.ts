@@ -2,6 +2,7 @@ import debugService from "../debugService";
 import globals from "../globals";
 import helpers from "../helpers";
 import { BaseScene } from "../scenes/BaseScene";
+import { MainScene } from "../scenes/MainScene";
 import { Piece } from "./Piece";
 
 const N_TUBE_PIECES = 20;
@@ -9,9 +10,9 @@ const N_TUBE_PIECES = 20;
 export class Player extends Phaser.GameObjects.Container {
     clawBase: Phaser.GameObjects.Sprite;
 
-    clawAngle: number = 4 * Math.PI;
-    clawAngleDelta: number = 0;
-    targetClawAngleDelta: number = 0;
+    baseRotation: number = 4 * Math.PI;
+    baseRotationDelta: number = 0;
+    targetBaseRotationDelta: number = 0;
 
     clawDirection: 'inward' | 'outward' = 'outward';
     clawExtLength: number = 2.5;
@@ -21,98 +22,123 @@ export class Player extends Phaser.GameObjects.Container {
     tubePieces: Phaser.GameObjects.Sprite[];
     clawTip: Phaser.GameObjects.Sprite;
     ropeGraphics: Phaser.GameObjects.Graphics;
+    base: Phaser.GameObjects.Sprite;
+    head: Phaser.GameObjects.Sprite;
+    glass: Phaser.GameObjects.Sprite;
+    pieces: Piece[];
 
     constructor(
-        scene: BaseScene,
+        scene: MainScene,
         public rotationDuration: number
     ) {
         super(scene, 0, 0);
 
         scene.add.existing(this);
-        this.setDepth(2000)
+        this.pieces = scene.pieces;
+
         this.innertube = scene.centerOriginSprite("player-innertube");
-        this.add(scene.centerOriginSprite("player-base", 9, -10))
-        this.add(scene.centerOriginSprite("player-head", 9, -20))
+        this.innertube.setOrigin(0.5, 0.5)
+        this.innertube.setDepth(1000);
+
+        this.base = scene.centerOriginSprite("player-base");
+        this.base.setOrigin(0.5, 0.5)
+        this.base.setDepth(1100);
+
+        this.head = scene.centerOriginSprite("player-head", 9, -20);
+        this.head.setDepth(1150);
+        this.head.setOrigin(0.5, 0.5)
         this.ropeGraphics = scene.add.graphics();
         this.ropeGraphics.setDepth(1100)
-        this.add(this.eyes = scene.centerOriginSprite("player-eyes", 24, -14))
+        this.eyes = scene.centerOriginSprite("player-eyes", 24, -14);
+        this.eyes.setOrigin(0.5, 0.5)
+        this.eyes.setDepth(1175)
+
         this.tubePieces = [];
         for (let i = 0; i < N_TUBE_PIECES; i++) {
             const spr = scene.centerOriginSprite(i % 2 == 0 ? "player-tube1" : "player-tube-2");
             this.tubePieces.push(spr);
         }
 
-        const glass = scene.centerOriginSprite("player-head-glass");
-        glass.setBlendMode(Phaser.BlendModes.MULTIPLY);
-        glass.setPosition(10, -21)
-        glass.alpha = 0.75;
-        this.add(glass);
+        this.glass = scene.centerOriginSprite("player-head-glass");
+        this.glass.setBlendMode(Phaser.BlendModes.MULTIPLY);
+        this.glass.setPosition(10, -21)
+        this.glass.setDepth(1300)
+        this.glass.setOrigin(0.5, 0.5)
+        this.glass.alpha = 0.75;
 
-        this.clawAngle = 0;
+        this.baseRotation = 0;
 
         this.clawBase = scene.add.sprite(28, 15, "claw-base");
         this.clawBase.setOrigin(0.5, 0)
-        this.add(this.clawBase);
 
         this.clawTip = scene.add.sprite(28, 15, "claw");
         this.clawTip.setOrigin(0.5, 0)
-        this.add(this.clawTip);
 
 
         // scene.add.existing(this);
+    }
+
+    getClosestPiece() {
+        const piecesByDist =
+            this.pieces
+                .filter(piece => piece.grabbable)
+                .map(piece => ({
+                    distance: helpers.dist(piece, this),
+                    piece
+                }));
+
+
+        if (piecesByDist.length > 0) {
+            piecesByDist.sort((a, b) => a.distance - b.distance);
+            return piecesByDist[0].piece;
+        }
+
+        return null;
     }
 
     grab(piece: Piece) {
 
     }
 
-    toggleClawDirection(d: 1 | -1 = -1) {
-        this.clawDirection = this.clawDirection === 'inward' ? 'outward' : 'inward'
-        this.targetClawAngleDelta += Math.PI * d;
-    }
+    // toggleClawDirection(d: 1 | -1 = -1) {
+    //     this.clawDirection = this.clawDirection === 'inward' ? 'outward' : 'inward'
+    //     this.targetBaseRotationDelta += Math.PI * d;
+    // }
 
-    setClawRotation() {
+    draw3dObjs() {
         const playerWidth = 20;
         const playerHeight = 11;
         const originX = 29;
         const originY = 5;
-        const theta = this.clawAngle || 0;
+        const theta = this.baseRotation || 0;
         const x = Math.cos(theta) * playerWidth;
         const y = Math.sin(theta) * playerHeight;
 
-        this.clawBase.x = x + originX;
-        this.clawBase.y = y + originY;
-        if (this.clawBase.y > 8) {
-            this.bringToTop(this.clawBase);
-        } else {
-            this.sendToBack(this.clawBase);
-        }
-        this.clawBase.rotation = this.clawAngle - Math.PI / 2;
+        this.eyes.x = (Math.cos(theta) * 3) + 0;
+        this.eyes.y = (Math.sin(theta) * 3) - 2;
+        // this.eyes.x = (Math.cos(theta) * 12) + 15;
+        // this.eyes.y = (Math.sin(theta) * 5) + 5;
+        
+        // if (this.eyes.y < 5) {
+        //     this.eyes.setDepth(1125)
+        // } else {
+        //     this.eyes.setDepth(1175)
+        // }
 
-        this.clawTip.x = (x * this.clawExtLength) + originX;
-        this.clawTip.y = (y * this.clawExtLength) + originY;
-
-        if (this.clawTip.y > 8) {
-            this.bringToTop(this.clawTip);
-        } else {
-            this.sendToBack(this.clawTip);
-        }
-        this.clawTip.rotation = this.clawAngle - Math.PI / 2;
-
-        this.eyes.x = (Math.cos(theta) * 2) + 24;
-        this.eyes.y = (Math.sin(theta) * 2) - 14;
+        this.eyes.x += this.head.x;
+        this.eyes.y += this.head.y;
 
         this.sendToBack(this.innertube);
 
         for (let i = 0; i < N_TUBE_PIECES; i++) {
             const angle = (i / N_TUBE_PIECES) * Math.PI * 2;
-            const piece = this.tubePieces[i];
+            const tubePiece = this.tubePieces[i];
 
-            this.sendToBack(piece);
+            this.sendToBack(tubePiece);
 
-            piece.x = this.x + (Math.cos(theta - Math.PI + angle) * playerWidth * 1.17) + 25;
-            piece.y = this.y + (Math.sin(theta - Math.PI + angle) * playerHeight * 0.8) + 11;
-            piece.setDepth(piece.y);
+            tubePiece.x = this.x + (Math.cos(theta - Math.PI + angle) * playerWidth * 1.17) - 5;
+            tubePiece.y = this.y + (Math.sin(theta - Math.PI + angle) * playerHeight * 0.8) - 4;
+            tubePiece.setDepth(tubePiece.y);
         }
 
         this.ropeGraphics.clear();
@@ -124,30 +150,37 @@ export class Player extends Phaser.GameObjects.Container {
         this.ropeGraphics.stroke();
     }
 
-
-    get clawTipPos() {
-        return {
-            x: this.x + this.clawBase.x + Math.cos(this.clawAngle) * 37,
-            y: this.y + this.clawBase.y + Math.sin(this.clawAngle) * 37
-        };
+    drawClaw() {
     }
+
 
     update(time: number, delta: number) {
         const t = ((time % this.rotationDuration) / this.rotationDuration) * Math.PI * 2;
-        const x = Math.cos(t) * globals.ARENA_W * globals.WIDTH / 2;
-        const y = 5 + (Math.sin(t) * globals.ARENA_H * globals.HEIGHT / 2);
+        const x = 26 + Math.cos(t) * globals.ARENA_W * (globals.WIDTH / 2);
+        const y = 20 + Math.sin(t) * globals.ARENA_H * (globals.HEIGHT / 2);
         const bobY = Math.sin(t * 4) * 0;
-
-        debugService.circle(this.clawTipPos.x, this.clawTipPos.y, 10, 0xFe4545);
 
         this.x = x + globals.WIDTH / 2.3;
         this.y = y + 50 + bobY + globals.HEIGHT / 4;
+
         this.innertube.x = this.x;
         this.innertube.y = this.y;
-        this.innertube.setDepth(1000)
-        this.setClawRotation();
+        this.base.x = this.x;
+        this.base.y = this.y - 10;
+        this.head.x = this.x;
+        this.head.y = this.y - 20;
+        this.glass.x = this.x;
+        this.glass.y = this.y - 20;
 
-        this.clawAngleDelta = helpers.lerp(this.clawAngleDelta, this.targetClawAngleDelta, delta * 0.075);
-        this.clawAngle = t + this.clawAngleDelta;
+        this.drawClaw();
+        this.draw3dObjs();
+
+        this.baseRotationDelta = helpers.lerp(this.baseRotationDelta, this.targetBaseRotationDelta, delta * 0.075);
+        this.baseRotation = t + this.baseRotationDelta;
+
+        const cp = this.getClosestPiece();
+        if (!!cp) {
+            debugService.circle(cp.x, cp.y, 10, 0xFF00aa);
+        }
     }
 }

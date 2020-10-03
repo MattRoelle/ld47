@@ -17,6 +17,7 @@ export class MainScene extends BaseScene {
     a: Phaser.Input.Keyboard.Key;
     d: Phaser.Input.Keyboard.Key;
     space: Phaser.Input.Keyboard.Key;
+    conveyorPieces: Piece[] = [];
     pieces: Piece[] = [];
 
     create() {
@@ -31,60 +32,14 @@ export class MainScene extends BaseScene {
 
         this.a = this.input.keyboard.addKey('a');
         this.a.onDown = (ev) => {
-            if (this.player.y > globals.HEIGHT / 2) {
-                if (this.player.clawDirection === 'inward') {
-                    this.player.toggleClawDirection(-1)
-                } else {
-                    this.player.toggleClawDirection(1)
-                }
-            } else {
-                if (this.player.clawDirection === 'inward') {
-                    this.player.toggleClawDirection(1)
-                } else {
-                    this.player.toggleClawDirection(-1)
-                }
-            }
         };
 
         this.d = this.input.keyboard.addKey('d');
         this.d.onDown = (ev) => {
-            if (this.player.y > globals.HEIGHT / 2) {
-                if (this.player.clawDirection === 'inward') {
-                    this.player.toggleClawDirection(1)
-                } else {
-                    this.player.toggleClawDirection(-1)
-                }
-            } else {
-                if (this.player.clawDirection === 'inward') {
-                    this.player.toggleClawDirection(-1)
-                } else {
-                    this.player.toggleClawDirection(1)
-                }
-            }
         };
 
         this.space = this.input.keyboard.addKey('space');
         this.space.onDown = (ev) => {
-            const clawTipPos = this.player.clawTipPos;
-
-            if (this.player.clawDirection === "outward") {
-                const piecesByDist =
-                    this.pieces
-                        .filter(piece => piece.grabbable)
-                        .map(piece => ({
-                            distance: helpers.dist(piece, clawTipPos),
-                            piece
-                        }));
-
-
-                if (piecesByDist.length > 0) {
-                    piecesByDist.sort((a, b) => a.distance - b.distance);
-                    const closestPiece = piecesByDist[0].piece;
-                    this.player.grab(closestPiece);
-                }
-            } else {
-
-            }
         };
 
         this.a = this.input.keyboard.addKey('a');
@@ -119,15 +74,14 @@ export class MainScene extends BaseScene {
         for (let i = 0; i < 30; i++) {
             const t = BASE_CONVEYOR_SPEED;
             const st = (i / 35) * BASE_CONVEYOR_SPEED;
-            this.pieces.push(new Piece(this, 'conveyor', 'top', t, this.time.now - st, -20000000000 - i));
-            this.pieces.push(new Piece(this, 'conveyor', 'bottom', t, this.time.now - st, -20000000000 - i));
+            this.conveyorPieces.push(new Piece(this, 'conveyor', 'top', t, this.time.now - st, -20000000000 - i));
+            this.conveyorPieces.push(new Piece(this, 'conveyor', 'bottom', t, this.time.now - st, -20000000000 - i));
         }
 
         this.time.addEvent({
-
             callback: () => {
-                this.pieces.push(new Piece(this, 'conveyor', 'top', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
-                this.pieces.push(new Piece(this, 'conveyor', 'bottom', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
+                this.conveyorPieces.push(new Piece(this, 'conveyor', 'top', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
+                this.conveyorPieces.push(new Piece(this, 'conveyor', 'bottom', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
             },
             repeat: -1,
             delay: 200
@@ -144,7 +98,12 @@ export class MainScene extends BaseScene {
             p.update(time, delta)
         }
         this.pieces = this.pieces.filter(p => !p.dead);
+        this.player.pieces = this.pieces;
 
+        for (let p of this.conveyorPieces) {
+            p.update(time, delta)
+        }
+        this.conveyorPieces = this.conveyorPieces.filter(p => !p.dead);
     }
 
 
