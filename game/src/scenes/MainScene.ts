@@ -7,6 +7,7 @@ import { BaseScene } from './BaseScene';
 import { Piece, PieceShape } from '../entities/Piece';
 
 const SCREEN_TRANSITION_TIME = 200;
+const BASE_CONVEYOR_SPEED = 12000;
 
 export class MainScene extends BaseScene {
     f: Phaser.Input.Keyboard.Key;
@@ -35,6 +36,8 @@ export class MainScene extends BaseScene {
         this.a = this.input.keyboard.addKey('a');
         this.d = this.input.keyboard.addKey('d');
 
+        const conveyorBase = this.centerOriginSprite("bg-conveyor-base");
+        conveyorBase.setDepth(-300000000000)
         this.centerOriginSprite("bg-water-1");
         this.centerOriginSprite("top");
         // this.waterSpin1 = this.centerOriginSprite("bg-water-spin-1", globals.WIDTH * 0.3, 0)
@@ -52,12 +55,29 @@ export class MainScene extends BaseScene {
                     'triangle',
                     'square'
                 ] as PieceShape[])[piecesSpawned % 3];
-                this.pieces.push(new Piece(this, pieceType, piecesSpawned % 2 === 0 ? 'top' : 'bottom', 3000, this.time.now));
+                this.pieces.push(new Piece(this, pieceType, piecesSpawned % 2 === 0 ? 'top' : 'bottom', BASE_CONVEYOR_SPEED, this.time.now));
                 piecesSpawned++;
             },
             repeat: -1,
             delay: 1000
-        })
+        });
+
+        for (let i = 0; i < 30; i++) {
+            const t = BASE_CONVEYOR_SPEED;
+            const st = (i / 35) * BASE_CONVEYOR_SPEED;
+            this.pieces.push(new Piece(this, 'conveyor', 'top', t, this.time.now - st, -20000000000 - i));
+            this.pieces.push(new Piece(this, 'conveyor', 'bottom', t, this.time.now - st, -20000000000 - i));
+        }
+
+        this.time.addEvent({
+
+            callback: () => {
+                this.pieces.push(new Piece(this, 'conveyor', 'top', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
+                this.pieces.push(new Piece(this, 'conveyor', 'bottom', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
+            },
+            repeat: -1,
+            delay: 200
+        });
     }
 
     update(time: number, delta: number) {
@@ -79,6 +99,9 @@ export class MainScene extends BaseScene {
         this.load.image("bg", "/assets/export-bg.png");
         this.load.image("center-plate", "/assets/export-center-plate.png");
         this.load.image("claw", "/assets/export-claw.png");
+        this.load.image("bg-conveyor-base", "/assets/export-bg-conveyor-base.png");
+        this.load.image("conveyor-piece", "/assets/export-conveyor-piece.png");
+        this.load.image("guide", "/assets/export-guide.png");
         this.load.image("piece-circle", "/assets/export-piece-circle.png");
         this.load.image("piece-square", "/assets/export-piece-square.png");
         this.load.image("piece-triangle", "/assets/export-piece-triangle.png");
