@@ -35,10 +35,10 @@ export class MainScene extends BaseScene {
         this.a = this.input.keyboard.addKey('a');
         this.d = this.input.keyboard.addKey('d');
 
-        // this.centerOriginSprite("bg-water-1");
+        this.centerOriginSprite("bg-water-1");
+        this.centerOriginSprite("top");
         // this.waterSpin1 = this.centerOriginSprite("bg-water-spin-1", globals.WIDTH * 0.3, 0)
-        // this.centerOriginSprite("bg-wall-1");
-        // this.centerOriginSprite("bg-outer-1");
+        this.centerOriginSprite("bg-outer-1");
         // this.centerSprite("center-plate");
 
         this.player = new Player(this, 6500);
@@ -61,12 +61,12 @@ export class MainScene extends BaseScene {
     }
 
     update(time: number, delta: number) {
-        
+
         delta /= 16;
         debugService.update(this);
         this.player.update(time, delta);
 
-        for(let p of this.pieces) {
+        for (let p of this.pieces) {
             p.update(time, delta)
         }
         this.pieces = this.pieces.filter(p => !p.dead);
@@ -74,23 +74,22 @@ export class MainScene extends BaseScene {
 
 
     preload() {
-        this.load.image("bg-outer-1", "/assets/export-bg-outer-1.png");
-        this.load.image("bg-wall-1", "/assets/export-bg-wall-1.png");
+        this.load.image("bg-top-1", "/assets/export-bg-top-1.png");
         this.load.image("bg-water-1", "/assets/export-bg-water-1.png");
-        this.load.image("bg-water-spin-1", "/assets/export-bg-water-spin-1.png");
+        this.load.image("bg", "/assets/export-bg.png");
         this.load.image("center-plate", "/assets/export-center-plate.png");
         this.load.image("claw", "/assets/export-claw.png");
         this.load.image("piece-circle", "/assets/export-piece-circle.png");
         this.load.image("piece-square", "/assets/export-piece-square.png");
         this.load.image("piece-triangle", "/assets/export-piece-triangle.png");
         this.load.image("player-base", "/assets/export-player-base.png");
-        this.load.image("player-claw-back-2", "/assets/export-player-claw-back-2.png");
-        this.load.image("player-claw-back", "/assets/export-player-claw-back.png");
         this.load.image("player-eyes", "/assets/export-player-eyes.png");
         this.load.image("player-head-glass", "/assets/export-player-head-glass.png");
         this.load.image("player-head", "/assets/export-player-head.png");
         this.load.image("player-innertube", "/assets/export-player-innertube.png");
         this.load.image("player-tube-2", "/assets/export-player-tube-2.png");
         this.load.image("player-tube1", "/assets/export-player-tube1.png");
+        this.load.image("top", "/assets/export-top.png");
+        this.load.image("water", "/assets/export-water.png");
     }
 }

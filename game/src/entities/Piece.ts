@@ -13,15 +13,34 @@ const PIECE_TYPE_SPRITE_KEYS: { [k in PieceShape]: string } = {
 
 const CONVEYOR_POS_FNS: { [k in ConveyorType]: (t: number) => [number,number] } = {
     bottom: t => {
+        const x = t * globals.WIDTH;
+        let y: number;
+        if (t < 0.175 || t > 0.825) {
+            y = globals.HEIGHT * 0.6
+        } else {
+            const yt = (t - 0.175)/0.65;
+            const sinYt = Math.sin((1 - yt) * Math.PI)
+            y = (globals.HEIGHT * 0.6) + (sinYt * 100);
+        }
         return [
-            t * globals.WIDTH,
-            globals.HEIGHT * 0.8
+            x,
+            y
         ];
     },
     top: t => {
+        t = 1 - t;
+        const x = t * globals.WIDTH;
+        let y: number;
+        if (t < 0.175 || t > 0.825) {
+            y = globals.HEIGHT * 0.47
+        } else {
+            const yt = (t - 0.175)/0.65;
+            const sinYt = Math.sin((1 - yt) * Math.PI)
+            y = (globals.HEIGHT * 0.47) - (sinYt * 110);
+        }
         return [
-            (1 - t) * globals.WIDTH,
-            globals.HEIGHT * 0.2
+            x,
+            y
         ];
     }
 }
