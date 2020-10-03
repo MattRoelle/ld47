@@ -72,7 +72,6 @@ export class Player extends Phaser.GameObjects.Container {
             this.sendToBack(this.claw);
         }
         this.claw.rotation = this.clawAngle - Math.PI / 2;
-        console.log('this.claw.y', this.claw.y);
 
         this.eyes.x = (Math.cos(theta) * 2) + 24;
         this.eyes.y = (Math.sin(theta) * 2) - 14;
@@ -89,7 +88,6 @@ export class Player extends Phaser.GameObjects.Container {
             piece.y = this.y + (Math.sin(theta - Math.PI + angle) * playerHeight * 0.8) + 11;
             piece.setDepth(piece.y);
         }
-
     }
 
 

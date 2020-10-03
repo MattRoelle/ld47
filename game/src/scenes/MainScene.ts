@@ -4,6 +4,7 @@ import globals from '../globals';
 import debugService from '../debugService';
 import { Player } from '../entities/Player';
 import { BaseScene } from './BaseScene';
+import { Piece, PieceShape } from '../entities/Piece';
 
 const SCREEN_TRANSITION_TIME = 200;
 
@@ -14,8 +15,12 @@ export class MainScene extends BaseScene {
     a: Phaser.Input.Keyboard.Key;
     d: Phaser.Input.Keyboard.Key;
     space: Phaser.Input.Keyboard.Key;
+    pieces: Piece[] = [];
 
     create() {
+        //@ts-ignore
+        window.scene = this;
+
         this.f = this.input.keyboard.addKey('f');
         this.f.onDown = (ev) => {
             // @ts-ignore
@@ -30,27 +35,41 @@ export class MainScene extends BaseScene {
         this.a = this.input.keyboard.addKey('a');
         this.d = this.input.keyboard.addKey('d');
 
-        this.centerOriginSprite("bg-water-1");
+        // this.centerOriginSprite("bg-water-1");
         // this.waterSpin1 = this.centerOriginSprite("bg-water-spin-1", globals.WIDTH * 0.3, 0)
-        this.centerOriginSprite("bg-wall-1");
-        this.centerOriginSprite("bg-outer-1");
-        this.centerSprite("center-plate");
+        // this.centerOriginSprite("bg-wall-1");
+        // this.centerOriginSprite("bg-outer-1");
+        // this.centerSprite("center-plate");
 
         this.player = new Player(this, 6500);
         debugService.init(this);
+
+        let piecesSpawned = 0;
+        this.time.addEvent({
+            callback: () => {
+                let pieceType: PieceShape = ([
+                    'circle',
+                    'triangle',
+                    'square'
+                ] as PieceShape[])[piecesSpawned % 3];
+                this.pieces.push(new Piece(this, pieceType, piecesSpawned % 2 === 0 ? 'top' : 'bottom', 3000, this.time.now));
+                piecesSpawned++;
+            },
+            repeat: -1,
+            delay: 1000
+        })
     }
 
     update(time: number, delta: number) {
+        
         delta /= 16;
         debugService.update(this);
-        // if (this.a.isDown) {
-        //     this.player.clawAngle -= delta * 0.05;
-        // }
-        // else if (this.d.isDown) {
-        //     this.player.clawAngle += delta * 0.05;
-        // }
         this.player.update(time, delta);
-        // this.waterSpin1.rotation += delta * 0.01;
+
+        for(let p of this.pieces) {
+            p.update(time, delta)
+        }
+        this.pieces = this.pieces.filter(p => !p.dead);
     }
 
 
@@ -61,6 +80,9 @@ export class MainScene extends BaseScene {
         this.load.image("bg-water-spin-1", "/assets/export-bg-water-spin-1.png");
         this.load.image("center-plate", "/assets/export-center-plate.png");
         this.load.image("claw", "/assets/export-claw.png");
+        this.load.image("piece-circle", "/assets/export-piece-circle.png");
+        this.load.image("piece-square", "/assets/export-piece-square.png");
+        this.load.image("piece-triangle", "/assets/export-piece-triangle.png");
         this.load.image("player-base", "/assets/export-player-base.png");
         this.load.image("player-claw-back-2", "/assets/export-player-claw-back-2.png");
         this.load.image("player-claw-back", "/assets/export-player-claw-back.png");
