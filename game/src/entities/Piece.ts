@@ -3,14 +3,41 @@ import globals from '../globals';
 import helpers from '../helpers';
 import { BaseScene } from "../scenes/BaseScene";
 
-export type PieceShape = 'circle' | 'square' | 'triangle' | 'conveyor';
-export type ConveyorType = 'top' | 'bottom';
+export type ConveyorLayout = 'top' | 'bottom';
 
-const PIECE_TYPE_SPRITE_KEYS: { [k in PieceShape]: string } = {
-    circle: 'piece-circle',
-    square: 'piece-square',
-    triangle: 'piece-triangle',
-    conveyor: 'conveyor-piece'
+export interface GrabbablePieceType {
+    conveyor: false;
+    spriteKey: string;
+    category: 'tip' | 'middle' | 'base';
+}
+
+interface ConveyorPieceType {
+    conveyor: true;
+    spriteKey: 'conveyor-piece'
+}
+
+export type PieceType = ConveyorPieceType | GrabbablePieceType;
+
+export const PIECES = {
+    conveyor: {
+        conveyor: true,
+        spriteKey: 'conveyor-piece'
+    } as PieceType,
+    tip1: {
+        conveyor: false,
+        spriteKey: 'rocket-tip-1',
+        category: 'tip',
+    } as PieceType,
+    mid1: {
+        conveyor: false,
+        spriteKey: 'rocket-mid-1',
+        category: 'tip',
+    } as PieceType,
+    base1: {
+        conveyor: false,
+        spriteKey: 'rocket-base-1',
+        category: 'tip',
+    } as PieceType,
 }
 
 const SEMI_CIRCLE_CONVEYOR: [number, number][] = [
@@ -26,20 +53,21 @@ const SEMI_CIRCLE_CONVEYOR: [number, number][] = [
     [1.25, 0.56],
 ]
 
-const CONVEYOR_NODES: { [k in ConveyorType]: [number, number][] } = {
+const CONVEYOR_NODES: { [k in ConveyorLayout]: [number, number][] } = {
     bottom: SEMI_CIRCLE_CONVEYOR.map(node => [node[0], node[1] + 0.025]),
     top: SEMI_CIRCLE_CONVEYOR.map(node => [1 - node[0], 1.02 - node[1]])
 }
 
 export class Piece extends Phaser.GameObjects.Sprite {
-    pieceType: PieceShape;
+    pieceType: PieceType;
     dead: boolean = false;
     currentNodeIdx: number = 0;
     hasSetInitialDirection: boolean;
     t: number = 0;
+    grabbed: boolean = false;
 
     get grabbable() {
-        return this.pieceType !== 'conveyor' && this.t > 0.05 && this.t < 0.95;
+        return !this.pieceType.conveyor && this.t > 0.05 && this.t < 0.95 && !this.grabbed;
     }
 
     get conveyor() {
@@ -53,20 +81,22 @@ export class Piece extends Phaser.GameObjects.Sprite {
 
     constructor(
         scene: BaseScene,
-        pieceType: PieceShape,
-        public conveyorType: ConveyorType,
+        pieceType: PieceType,
+        public conveyorType: ConveyorLayout,
         public conveyorSpeed: number,
         public spawnTime: number,
         public depth: number = 0
     ) {
-        super(scene, 0, 0, PIECE_TYPE_SPRITE_KEYS[pieceType]);
+        super(scene, 0, 0, pieceType.spriteKey);
         scene.add.existing(this);
         this.pieceType = pieceType;
         this.setOrigin(0.5, 0.5)
 
-        if (this.pieceType === 'conveyor') {
+        if (this.pieceType.conveyor) {
             this.setOrigin(1, 0.5)
             this.scene.children.sendToBack(this);
+        } else {
+            this.setDepth(5000)
         }
 
         this.hasSetInitialDirection = false;
@@ -74,6 +104,8 @@ export class Piece extends Phaser.GameObjects.Sprite {
 
     update(time: number, delta: number) {
         if (this.dead) return;
+
+        if (this.grabbed) return;
 
 
         const t = (time - this.spawnTime) / this.conveyorSpeed;

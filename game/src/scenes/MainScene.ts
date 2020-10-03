@@ -4,7 +4,7 @@ import globals from '../globals';
 import debugService from '../debugService';
 import { Player } from '../entities/Player';
 import { BaseScene } from './BaseScene';
-import { Piece, PieceShape } from '../entities/Piece';
+import { Piece, PIECES, PieceType } from '../entities/Piece';
 import helpers from '../helpers';
 
 const SCREEN_TRANSITION_TIME = 200;
@@ -60,32 +60,32 @@ export class MainScene extends BaseScene {
         let piecesSpawned = 0;
         this.time.addEvent({
             callback: () => {
-                let pieceType: PieceShape = ([
-                    'circle',
-                    'triangle',
-                    'square'
-                ] as PieceShape[])[piecesSpawned % 3];
+                let pieceType: PieceType = ([
+                    PIECES.tip1,
+                    PIECES.mid1,
+                    PIECES.base1,
+                ] as PieceType[])[piecesSpawned % 3];
                 this.pieces.push(new Piece(this, pieceType, piecesSpawned % 2 === 0 ? 'top' : 'bottom', BASE_CONVEYOR_SPEED, this.time.now));
                 piecesSpawned++;
             },
             repeat: -1,
-            delay: 1000
+            delay: 200
         });
 
         for (let i = 0; i < 30; i++) {
             const t = BASE_CONVEYOR_SPEED;
             const st = (i / 35) * BASE_CONVEYOR_SPEED;
-            this.conveyorPieces.push(new Piece(this, 'conveyor', 'top', t, this.time.now - st, -20000000000 - i));
-            this.conveyorPieces.push(new Piece(this, 'conveyor', 'bottom', t, this.time.now - st, -20000000000 - i));
+            this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'top', t, this.time.now - st, -20000000000 - i));
+            this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'bottom', t, this.time.now - st, -20000000000 - i));
         }
 
         this.time.addEvent({
             callback: () => {
-                this.conveyorPieces.push(new Piece(this, 'conveyor', 'top', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
-                this.conveyorPieces.push(new Piece(this, 'conveyor', 'bottom', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
+                this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'top', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
+                this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'bottom', BASE_CONVEYOR_SPEED, this.time.now, -10000000000 + this.time.now));
             },
             repeat: -1,
-            delay: 200
+            delay: 250
         });
     }
 
@@ -129,6 +129,9 @@ export class MainScene extends BaseScene {
         this.load.image("player-innertube", "/assets/export-player-innertube.png");
         this.load.image("player-tube-2", "/assets/export-player-tube-2.png");
         this.load.image("player-tube1", "/assets/export-player-tube1.png");
+        this.load.image("rocket-base-1", "/assets/export-rocket-base-1.png");
+        this.load.image("rocket-mid-1", "/assets/export-rocket-mid-1.png");
+        this.load.image("rocket-tip-1", "/assets/export-rocket-tip-1.png");
         this.load.image("top", "/assets/export-top.png");
         this.load.image("water", "/assets/export-water.png");
     }
