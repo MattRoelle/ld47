@@ -36,6 +36,11 @@ export class Piece extends Phaser.GameObjects.Sprite {
     dead: boolean = false;
     currentNodeIdx: number = 0;
     hasSetInitialDirection: boolean;
+    t: number = 0;
+
+    get grabbable() {
+        return this.pieceType !== 'conveyor' && this.t > 0.15 && this.t < 0.85;
+    }
 
     get conveyor() {
         return CONVEYOR_NODES[this.conveyorType];
@@ -72,6 +77,8 @@ export class Piece extends Phaser.GameObjects.Sprite {
 
 
         const t = (time - this.spawnTime) / this.conveyorSpeed;
+        this.t = t;
+
         const ct = (t * this.conveyor.length) % 1;
 
         const node = this.conveyor[Math.floor(t * this.conveyor.length)];

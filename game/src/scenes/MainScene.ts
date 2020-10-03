@@ -5,6 +5,7 @@ import debugService from '../debugService';
 import { Player } from '../entities/Player';
 import { BaseScene } from './BaseScene';
 import { Piece, PieceShape } from '../entities/Piece';
+import helpers from '../helpers';
 
 const SCREEN_TRANSITION_TIME = 200;
 const BASE_CONVEYOR_SPEED = 12000;
@@ -28,9 +29,61 @@ export class MainScene extends BaseScene {
             this.game.canvas[this.game.device.fullscreen.request]();
         };
 
+        this.a = this.input.keyboard.addKey('a');
+        this.a.onDown = (ev) => {
+            if (this.player.y > globals.HEIGHT / 2) {
+                if (this.player.clawDirection === 'inward') {
+                    this.player.toggleClawDirection(-1)
+                } else {
+                    this.player.toggleClawDirection(1)
+                }
+            } else {
+                if (this.player.clawDirection === 'inward') {
+                    this.player.toggleClawDirection(1)
+                } else {
+                    this.player.toggleClawDirection(-1)
+                }
+            }
+        };
+
+        this.d = this.input.keyboard.addKey('d');
+        this.d.onDown = (ev) => {
+            if (this.player.y > globals.HEIGHT / 2) {
+                if (this.player.clawDirection === 'inward') {
+                    this.player.toggleClawDirection(1)
+                } else {
+                    this.player.toggleClawDirection(-1)
+                }
+            } else {
+                if (this.player.clawDirection === 'inward') {
+                    this.player.toggleClawDirection(-1)
+                } else {
+                    this.player.toggleClawDirection(1)
+                }
+            }
+        };
+
         this.space = this.input.keyboard.addKey('space');
         this.space.onDown = (ev) => {
-            this.player.toggleClawDirection();
+            const clawTipPos = this.player.clawTipPos;
+
+            if (this.player.clawDirection === "outward") {
+                const closestPiece =
+                    this.pieces
+                        .filter(piece => piece.grabbable)
+                        .map(piece => ({
+                            distance: helpers.dist(piece, clawTipPos),
+                            piece
+                        }))
+                        .sort((a, b) => a.distance - b.distance)
+                    [0].piece;
+
+                debugService.circle(closestPiece.x, closestPiece.y, 20, 0x0000FF);
+
+                this.player.grab();
+            } else {
+
+            }
         };
 
         this.a = this.input.keyboard.addKey('a');
@@ -90,16 +143,40 @@ export class MainScene extends BaseScene {
             p.update(time, delta)
         }
         this.pieces = this.pieces.filter(p => !p.dead);
+
+        const clawTipPos = this.player.clawTipPos;
+
+        if (this.player.clawDirection === "outward") {
+            const piecesByDist =
+                this.pieces
+                    .filter(piece => piece.grabbable)
+                    .map(piece => ({
+                        distance: helpers.dist(piece, clawTipPos),
+                        piece
+                    }));
+
+
+            if (piecesByDist.length > 0) {
+                piecesByDist.sort((a, b) => a.distance - b.distance);
+                const closestPiece = piecesByDist[0].piece;
+                debugService.circle(closestPiece.x, closestPiece.y, 20, 0x0000FF);
+                this.player.grab();
+            }
+        } else {
+
+        }
     }
 
 
     preload() {
+        this.load.image("bg-conveyor-base", "/assets/export-bg-conveyor-base.png");
         this.load.image("bg-top-1", "/assets/export-bg-top-1.png");
         this.load.image("bg-water-1", "/assets/export-bg-water-1.png");
         this.load.image("bg", "/assets/export-bg.png");
         this.load.image("center-plate", "/assets/export-center-plate.png");
+        this.load.image("claw-base", "/assets/export-claw-base.png");
         this.load.image("claw", "/assets/export-claw.png");
-        this.load.image("bg-conveyor-base", "/assets/export-bg-conveyor-base.png");
+        this.load.image("conveyor-base", "/assets/export-conveyor-base.png");
         this.load.image("conveyor-piece", "/assets/export-conveyor-piece.png");
         this.load.image("guide", "/assets/export-guide.png");
         this.load.image("piece-circle", "/assets/export-piece-circle.png");
