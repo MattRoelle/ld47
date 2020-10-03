@@ -6,6 +6,7 @@ import { Player } from '../entities/Player';
 import { BaseScene } from './BaseScene';
 import { Piece, PIECES, PieceType } from '../entities/Piece';
 import helpers from '../helpers';
+import { GameDirector } from '../entities/GameDirector';
 
 const SCREEN_TRANSITION_TIME = 200;
 const BASE_CONVEYOR_SPEED = 12000;
@@ -19,6 +20,7 @@ export class MainScene extends BaseScene {
     space: Phaser.Input.Keyboard.Key;
     conveyorPieces: Piece[] = [];
     pieces: Piece[] = [];
+    director: GameDirector;
 
     create() {
         //@ts-ignore
@@ -57,20 +59,7 @@ export class MainScene extends BaseScene {
         this.player = new Player(this, 6500);
         debugService.init(this);
 
-        let piecesSpawned = 0;
-        this.time.addEvent({
-            callback: () => {
-                let pieceType: PieceType = ([
-                    PIECES.tip1,
-                    PIECES.mid1,
-                    PIECES.base1,
-                ] as PieceType[])[piecesSpawned % 3];
-                this.pieces.push(new Piece(this, pieceType, piecesSpawned % 2 === 0 ? 'top' : 'bottom', BASE_CONVEYOR_SPEED, this.time.now));
-                piecesSpawned++;
-            },
-            repeat: -1,
-            delay: 500
-        });
+        this.director = new GameDirector(this);
 
         for (let i = 0; i < 30; i++) {
             const t = BASE_CONVEYOR_SPEED;

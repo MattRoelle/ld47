@@ -134,7 +134,7 @@ export class Player extends Phaser.GameObjects.Container {
                                 p.setTintFill(0, 0, 0, 0)
                                 p.exploding = true;
                                 p.flyOffAngle = Math.random() * 2 * Math.PI;
-                                p.flyOffSpeed = 7 + (Math.random() * 4);
+                                p.flyOffSpeed = 5 + (Math.random() * 3);
                             }
                         });
                     });
@@ -187,18 +187,13 @@ export class Player extends Phaser.GameObjects.Container {
             duration: 300,
             ease: Phaser.Math.Easing.Quadratic.Out,
             onComplete: () => {
-                this.piecesInCenter.push(this.grabbingPiece);
-                this.scene.time.delayedCall(175, () => {
-                    if (this.piecesInCenter.length >= 3) {
-                        this.explode();
-                    }
-                });
                 // @ts-ignore
-                const centerHeight = this.piecesInCenter.map(p => p.pieceType.height).reduce((a, b) => a + b)
+                const centerHeight = this.piecesInCenter.map(p => p.pieceType.height).reduce((a, b) => a + b, 0)
+                this.piecesInCenter.push(this.grabbingPiece);
                 this.scene.tweens.add({
                     targets: this.clawTip,
                     x: (globals.WIDTH / 2),
-                    y: (globals.HEIGHT / 2) - centerHeight + 30,
+                    y: (globals.HEIGHT / 2) - centerHeight + 10,
                     duration: 300,
                     ease: Phaser.Math.Easing.Quadratic.Out,
                     completeDelay: 100,

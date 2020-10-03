@@ -58,10 +58,15 @@ function spawnExplosion(x: number, y: number, scene: Phaser.Scene) {
     spr.setDepth(100000000);
 }
 
+function sample<T>(arr: T[]): T {
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
 export default {
     lerp,
     clamp,
     lerpRadians,
     dist,
-    explosion
+    explosion,
+    sample
 }
