@@ -13,12 +13,18 @@ export class MainScene extends BaseScene {
     waterSpin1: Phaser.GameObjects.Sprite;
     a: Phaser.Input.Keyboard.Key;
     d: Phaser.Input.Keyboard.Key;
+    space: Phaser.Input.Keyboard.Key;
 
     create() {
         this.f = this.input.keyboard.addKey('f');
         this.f.onDown = (ev) => {
             // @ts-ignore
             this.game.canvas[this.game.device.fullscreen.request]();
+        };
+
+        this.space = this.input.keyboard.addKey('space');
+        this.space.onDown = (ev) => {
+            this.player.toggleClawDirection();
         };
 
         this.a = this.input.keyboard.addKey('a');
@@ -37,12 +43,12 @@ export class MainScene extends BaseScene {
     update(time: number, delta: number) {
         delta /= 16;
         debugService.update(this);
-        if (this.a.isDown) {
-            this.player.clawAngle -= delta * 0.05;
-        }
-        else if (this.d.isDown) {
-            this.player.clawAngle += delta * 0.05;
-        }
+        // if (this.a.isDown) {
+        //     this.player.clawAngle -= delta * 0.05;
+        // }
+        // else if (this.d.isDown) {
+        //     this.player.clawAngle += delta * 0.05;
+        // }
         this.player.update(time, delta);
         // this.waterSpin1.rotation += delta * 0.01;
     }
