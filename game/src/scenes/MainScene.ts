@@ -40,6 +40,7 @@ export class MainScene extends BaseScene {
 
         this.space = this.input.keyboard.addKey('space');
         this.space.onDown = (ev) => {
+            this.player.grab();
         };
 
         this.a = this.input.keyboard.addKey('a');
