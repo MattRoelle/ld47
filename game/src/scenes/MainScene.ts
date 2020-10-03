@@ -87,6 +87,19 @@ export class MainScene extends BaseScene {
             repeat: -1,
             delay: 250
         });
+
+        this.anims.create({
+            key: 'explode',
+            frames: this.anims.generateFrameNumbers('explode', {
+                first: 30,
+                end: 69
+            }),
+            frameRate: 60,
+            skipMissedFrames: true,
+            delay: 0,
+            repeat: 0,
+            repeatDelay: 0
+        })
     }
 
     update(time: number, delta: number) {
@@ -134,5 +147,13 @@ export class MainScene extends BaseScene {
         this.load.image("rocket-tip-1", "/assets/export-rocket-tip-1.png");
         this.load.image("top", "/assets/export-top.png");
         this.load.image("water", "/assets/export-water.png");
+
+
+        this.load.spritesheet("explode", "/assets/animations/explode.png", {
+            frameWidth: 100,
+            frameHeight: 100,
+            startFrame: 30,
+            endFrame: 69
+        });
     }
 }

@@ -70,6 +70,10 @@ export class Piece extends Phaser.GameObjects.Sprite {
     t: number = 0;
     grabbed: boolean = false;
 
+    exploding: boolean = false;
+    flyOffAngle: number;
+    flyOffSpeed: number;
+
     get grabbable() {
         return !this.pieceType.conveyor && this.t > 0.05 && this.t < 0.95 && !this.grabbed;
     }
@@ -109,7 +113,15 @@ export class Piece extends Phaser.GameObjects.Sprite {
     update(time: number, delta: number) {
         if (this.dead) return;
 
+        if (this.exploding) {
+            this.x += Math.cos(this.flyOffAngle) * this.flyOffSpeed * delta;
+            this.y += Math.sin(this.flyOffAngle) * this.flyOffSpeed * delta;
+            this.rotation += delta * 0.05;
+            return;
+        }
+
         if (this.grabbed) return;
+
 
 
         const t = (time - this.spawnTime) / this.conveyorSpeed;
@@ -121,8 +133,7 @@ export class Piece extends Phaser.GameObjects.Sprite {
         const nextNode = this.conveyor[Math.floor(t * this.conveyor.length) + 1];
 
         if (!nextNode) {
-            this.destroy();
-            this.dead = true;
+            this.die();
         } else {
             this.x = helpers.lerp(node[0], nextNode[0], ct) * globals.WIDTH;
             this.y = helpers.lerp(node[1], nextNode[1], ct) * globals.HEIGHT;
@@ -142,5 +153,10 @@ export class Piece extends Phaser.GameObjects.Sprite {
                 this.gotoNextNode();
             }
         }
+    }
+
+    die() {
+        this.dead = true;
+        this.destroy();
     }
 }

@@ -37,7 +37,7 @@ export class Player extends Phaser.GameObjects.Container {
     clawBase2: Phaser.GameObjects.Sprite;
 
     piecesInCenter: Piece[] = [];
-    centerHeight: number = 0;
+    exploding: boolean;
 
     constructor(
         scene: MainScene,
@@ -96,6 +96,53 @@ export class Player extends Phaser.GameObjects.Container {
         // scene.add.existing(this);
     }
 
+    explode() {
+        // if (this.exploding) return;
+        // this.exploding = true;
+
+        const pcs = [...this.piecesInCenter];
+
+        this.piecesInCenter = [];
+
+        for (let p of pcs) {
+            p.tintFill = true;
+            p.setTintFill(0xFFFFFF)
+        }
+
+        const blinkTime = 125;
+
+        this.scene.time.delayedCall(blinkTime, () => {
+            for (let p of pcs) {
+                p.tintFill = false;
+            }
+            this.scene.time.delayedCall(blinkTime, () => {
+                for (let p of pcs) {
+                    p.tintFill = true;
+                }
+                this.scene.time.delayedCall(blinkTime, () => {
+                    for (let p of pcs) {
+                        p.tintFill = false;
+                    }
+                    this.scene.time.delayedCall(blinkTime, () => {
+                        for (let p of pcs) {
+                            p.tintFill = true;
+                        }
+                        this.scene.time.delayedCall(blinkTime, () => {
+                            helpers.explosion(globals.WIDTH / 2, globals.HEIGHT / 2, this.scene)
+                            for (let p of pcs) {
+                                p.tintFill = true;
+                                p.setTintFill(0, 0, 0, 0)
+                                p.exploding = true;
+                                p.flyOffAngle = Math.random() * 2 * Math.PI;
+                                p.flyOffSpeed = 7 + (Math.random() * 4);
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    }
+
     getClosestPiece() {
         const piecesByDist =
             this.pieces
@@ -124,11 +171,11 @@ export class Player extends Phaser.GameObjects.Container {
         this.grabbing = true;
         this.grabbingPiece = cp;
 
-        this.scene.time.delayedCall(175, () => {
+        this.scene.time.delayedCall(240, () => {
             this.hasPickedUpPiece = true;
             this.grabbingPiece.grabbed = true;
             this.grabbingPiece.rotation = 0;
-            this.grabbingPiece.setDepth(100000 + this.centerHeight);
+            this.grabbingPiece.setDepth(100000 + this.piecesInCenter.length * 10);
         })
 
         const pieceType = this.grabbingPiece.pieceType as GrabbablePieceType;
@@ -141,17 +188,23 @@ export class Player extends Phaser.GameObjects.Container {
             ease: Phaser.Math.Easing.Quadratic.Out,
             onComplete: () => {
                 this.piecesInCenter.push(this.grabbingPiece);
+                this.scene.time.delayedCall(175, () => {
+                    if (this.piecesInCenter.length >= 3) {
+                        this.explode();
+                    }
+                });
+                // @ts-ignore
+                const centerHeight = this.piecesInCenter.map(p => p.pieceType.height).reduce((a, b) => a + b)
                 this.scene.tweens.add({
                     targets: this.clawTip,
                     x: (globals.WIDTH / 2),
-                    y: (globals.HEIGHT / 2) - this.centerHeight,
+                    y: (globals.HEIGHT / 2) - centerHeight + 30,
                     duration: 300,
                     ease: Phaser.Math.Easing.Quadratic.Out,
                     completeDelay: 100,
                     onComplete: () => {
                         this.grabbing = false;
                         this.hasPickedUpPiece = false;
-                        this.centerHeight += pieceType.height
                     }
                 })
             }
@@ -271,8 +324,8 @@ export class Player extends Phaser.GameObjects.Container {
         const bobY = Math.sin(t * 4) * 0;
 
         // if (!this.grabbing) {
-            this.x = x + globals.WIDTH / 2.3;
-            this.y = y + 50 + bobY + globals.HEIGHT / 4;
+        this.x = x + globals.WIDTH / 2.3;
+        this.y = y + 50 + bobY + globals.HEIGHT / 4;
         // }
 
         if (this.grabbing && this.hasPickedUpPiece) {

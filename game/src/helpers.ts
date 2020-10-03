@@ -40,9 +40,28 @@ function lerpRadians(a: number, b: number, lerpFactor: number): number {
     return result;
 }
 
+function explosion(x: number, y: number, scene: Phaser.Scene) {
+    spawnExplosion(x, y, scene);
+    // for(let i = 0; i < Math.random() * 4; i++) {
+    //     scene.time.delayedCall(i * 100, () => {
+    //         spawnExplosion(x, y, scene);
+    //     })
+    // }
+}
+
+function spawnExplosion(x: number, y: number, scene: Phaser.Scene) {
+    const spr = scene.add.sprite(x, y, 'explode');
+    spr.play('explode', true, 30);
+    spr.rotation = Math.random () * 2 * Math.PI;
+    const s = 2 + (Math.random() * 0.4);
+    spr.setScale(s, s);
+    spr.setDepth(100000000);
+}
+
 export default {
     lerp,
     clamp,
     lerpRadians,
-    dist
+    dist,
+    explosion
 }
