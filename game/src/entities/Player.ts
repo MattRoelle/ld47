@@ -27,6 +27,10 @@ export class Player extends Phaser.GameObjects.Container {
     glass: Phaser.GameObjects.Sprite;
     pieces: Piece[];
 
+    clawTheta: number = 0;
+    ropeStartX: number = 0;
+    ropeStartY: number = 0;
+
     constructor(
         scene: MainScene,
         public rotationDuration: number
@@ -69,10 +73,11 @@ export class Player extends Phaser.GameObjects.Container {
         this.baseRotation = 0;
 
         this.clawBase = scene.add.sprite(28, 15, "claw-base");
-        this.clawBase.setOrigin(0.5, 0)
+        this.clawBase.setOrigin(0.5, 0.5)
 
         this.clawTip = scene.add.sprite(28, 15, "claw");
         this.clawTip.setOrigin(0.5, 0)
+        this.clawTip.setDepth(1800)
 
 
         // scene.add.existing(this);
@@ -140,17 +145,55 @@ export class Player extends Phaser.GameObjects.Container {
             tubePiece.y = this.y + (Math.sin(theta - Math.PI + angle) * playerHeight * 0.8) - 4;
             tubePiece.setDepth(tubePiece.y);
         }
-
-        this.ropeGraphics.clear();
-        this.ropeGraphics.lineStyle(4, 0x000000);
-        this.ropeGraphics.beginPath();
-        this.ropeGraphics.moveTo(this.x + this.clawBase.x, this. y +this.clawBase.y);
-        this.ropeGraphics.lineTo(this.x + this.clawTip.x, this.y + this.clawTip.y);
-        this.ropeGraphics.closePath();
-        this.ropeGraphics.stroke();
     }
 
-    drawClaw() {
+    drawClaw(delta: number) {
+        const cp = this.getClosestPiece();
+
+        let theta: number;
+        let magnitude: number;
+
+        if (cp) {
+            const dx = this.x - cp.x;
+            const dy = this.y - cp.y;
+            theta = Math.atan2(dy, dx) + Math.PI;
+            // magnitude = helpers.dist(this, cp);
+            magnitude = 100;
+            debugService.circle(cp.x, cp.y, 10, 0x00FFaa)
+        } else {
+            theta = 3 * Math.PI / 2;
+            magnitude = 25;
+        }
+
+        this.clawTheta = helpers.lerpRadians(this.clawTheta, theta, delta * 0.1)
+
+        // theta = (((Date.now()) % 2000) / 2000) * Math.PI * 2;
+
+        this.clawTip.x = helpers.lerp(this.clawTip.x, this.x + Math.cos(this.clawTheta)*30, delta * 0.2);
+        this.clawTip.y = helpers.lerp(this.clawTip.y, this.y - 10 + Math.sin(this.clawTheta)*30, delta * 0.2);
+        this.clawTip.rotation = helpers.lerpRadians(this.clawTip.rotation, this.clawTheta + Math.PI / -2, delta * 0.5);
+
+        this.ropeStartX = this.x + Math.cos(this.clawTheta)*26;
+        this.ropeStartY = -10 + this.y + Math.sin(this.clawTheta)*12;
+
+        this.clawBase.x = this.ropeStartX;
+        this.clawBase.y = this.ropeStartY;
+
+        if (this.ropeStartY > this.y - 10) {
+            this.ropeGraphics.setDepth(1150)
+            this.clawBase.setDepth(1160)
+        } else {
+            this.clawBase.setDepth(1010)
+            this.ropeGraphics.setDepth(1000)
+        }
+
+        this.ropeGraphics.clear();
+        this.ropeGraphics.lineStyle(6, 0x000000);
+        this.ropeGraphics.beginPath();
+        this.ropeGraphics.moveTo(this.ropeStartX, this.ropeStartY);
+        this.ropeGraphics.lineTo(this.clawTip.x,this.clawTip.y);
+        this.ropeGraphics.closePath();
+        this.ropeGraphics.stroke();
     }
 
 
@@ -172,15 +215,10 @@ export class Player extends Phaser.GameObjects.Container {
         this.glass.x = this.x;
         this.glass.y = this.y - 20;
 
-        this.drawClaw();
+        this.drawClaw(delta);
         this.draw3dObjs();
 
         this.baseRotationDelta = helpers.lerp(this.baseRotationDelta, this.targetBaseRotationDelta, delta * 0.075);
         this.baseRotation = t + this.baseRotationDelta;
-
-        const cp = this.getClosestPiece();
-        if (!!cp) {
-            debugService.circle(cp.x, cp.y, 10, 0xFF00aa);
-        }
     }
 }
