@@ -69,7 +69,7 @@ export class MainScene extends BaseScene {
                 piecesSpawned++;
             },
             repeat: -1,
-            delay: 200
+            delay: 500
         });
 
         for (let i = 0; i < 30; i++) {

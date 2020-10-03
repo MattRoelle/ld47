@@ -31,13 +31,13 @@ export class Player extends Phaser.GameObjects.Container {
     ropeStartX: number = 0;
     ropeStartY: number = 0;
     grabbing: boolean = false;
-    grabPos: { x: number, y: number } = { x: 0, y: 0 };
     hasPickedUpPiece: boolean = false;
     grabbingPiece: Piece;
     pauseTime: number = 0;
     clawBase2: Phaser.GameObjects.Sprite;
 
     piecesInCenter: Piece[] = [];
+    centerHeight: number = 0;
 
     constructor(
         scene: MainScene,
@@ -89,7 +89,7 @@ export class Player extends Phaser.GameObjects.Container {
         this.clawBase2.setOrigin(0.5, 0.5)
 
         this.clawTip = scene.add.sprite(28, 15, "claw");
-        this.clawTip.setOrigin(0.5, 0)
+        this.clawTip.setOrigin(0.5, 1)
         this.clawTip.setDepth(1800)
 
 
@@ -128,10 +128,10 @@ export class Player extends Phaser.GameObjects.Container {
             this.hasPickedUpPiece = true;
             this.grabbingPiece.grabbed = true;
             this.grabbingPiece.rotation = 0;
+            this.grabbingPiece.setDepth(100000 + this.centerHeight);
         })
 
         const pieceType = this.grabbingPiece.pieceType as GrabbablePieceType;
-
 
         this.scene.tweens.add({
             targets: this.clawTip,
@@ -140,17 +140,18 @@ export class Player extends Phaser.GameObjects.Container {
             duration: 300,
             ease: Phaser.Math.Easing.Quadratic.Out,
             onComplete: () => {
+                this.piecesInCenter.push(this.grabbingPiece);
                 this.scene.tweens.add({
                     targets: this.clawTip,
                     x: (globals.WIDTH / 2),
-                    y: (globals.HEIGHT / 2),
+                    y: (globals.HEIGHT / 2) - this.centerHeight,
                     duration: 300,
                     ease: Phaser.Math.Easing.Quadratic.Out,
                     completeDelay: 100,
                     onComplete: () => {
-                        this.piecesInCenter.push(this.grabbingPiece);
                         this.grabbing = false;
                         this.hasPickedUpPiece = false;
+                        this.centerHeight += pieceType.height
                     }
                 })
             }
@@ -217,7 +218,7 @@ export class Player extends Phaser.GameObjects.Container {
                 theta = Math.atan2(dy, dx) + Math.PI;
                 // magnitude = helpers.dist(this, cp);
                 magnitude = 100;
-                debugService.circle(cp.x, cp.y, 10, 0xFFaa00)
+                debugService.circle(cp.x, cp.y, 20, 0xFFaa00)
             } else {
                 theta = 3 * Math.PI / 2;
                 magnitude = 25;
@@ -228,14 +229,9 @@ export class Player extends Phaser.GameObjects.Container {
 
         // theta = (((Date.now()) % 2000) / 2000) * Math.PI * 2;
         if (!this.grabbing) {
-            this.clawTip.x = helpers.lerp(this.clawTip.x, this.x + Math.cos(this.clawTheta) * 30, delta * 0.2);
-            this.clawTip.y = helpers.lerp(this.clawTip.y, this.y - 10 + Math.sin(this.clawTheta) * 30, delta * 0.2);
+            this.clawTip.x = helpers.lerp(this.clawTip.x, this.x + Math.cos(this.clawTheta) * 45, delta * 0.2);
+            this.clawTip.y = helpers.lerp(this.clawTip.y, this.y - 10 + Math.sin(this.clawTheta) * 45, delta * 0.2);
         } else {
-            const clawDist = helpers.dist(this, this.clawTip);
-            this.grabPos = {
-                x: this.x + Math.cos(theta) * (clawDist + 15),
-                y: this.y + Math.sin(theta) * (clawDist + 15),
-            }
         }
 
         this.clawTip.rotation = helpers.lerpRadians(this.clawTip.rotation, this.clawTheta + Math.PI / -2, delta);
@@ -244,8 +240,11 @@ export class Player extends Phaser.GameObjects.Container {
 
         this.clawBase.x = this.ropeStartX;
         this.clawBase.y = this.ropeStartY;
-        this.clawBase2.x = this.clawTip.x;
-        this.clawBase2.y = this.clawTip.y;
+
+        const clawDist = helpers.dist(this, this.clawTip);
+        const clawTheta = Math.atan2(this.clawTip.y - this.y, this.clawTip.x - this.x)
+        this.clawBase2.x = this.x + Math.cos(clawTheta) * (clawDist - 15);
+        this.clawBase2.y = this.y + Math.sin(clawTheta) * (clawDist - 15);
 
         if (this.ropeStartY > this.y - 10) {
             this.ropeGraphics.setDepth(1150)
@@ -259,7 +258,7 @@ export class Player extends Phaser.GameObjects.Container {
         this.ropeGraphics.lineStyle(6, 0x000000);
         this.ropeGraphics.beginPath();
         this.ropeGraphics.moveTo(this.ropeStartX, this.ropeStartY);
-        this.ropeGraphics.lineTo(this.clawTip.x, this.clawTip.y);
+        this.ropeGraphics.lineTo(this.clawBase2.x, this.clawBase2.y);
         this.ropeGraphics.closePath();
         this.ropeGraphics.stroke();
     }
@@ -277,8 +276,8 @@ export class Player extends Phaser.GameObjects.Container {
         // }
 
         if (this.grabbing && this.hasPickedUpPiece) {
-            this.grabbingPiece.x = this.grabPos.x;
-            this.grabbingPiece.y = this.grabPos.y;
+            this.grabbingPiece.x = this.clawTip.x;
+            this.grabbingPiece.y = this.clawTip.y;
         }
 
         this.innertube.x = this.x;

@@ -9,6 +9,7 @@ export interface GrabbablePieceType {
     conveyor: false;
     spriteKey: string;
     category: 'tip' | 'middle' | 'base';
+    height: number;
 }
 
 interface ConveyorPieceType {
@@ -27,16 +28,19 @@ export const PIECES = {
         conveyor: false,
         spriteKey: 'rocket-tip-1',
         category: 'tip',
+        height: 33
     } as PieceType,
     mid1: {
         conveyor: false,
         spriteKey: 'rocket-mid-1',
         category: 'tip',
+        height: 20
     } as PieceType,
     base1: {
         conveyor: false,
         spriteKey: 'rocket-base-1',
         category: 'tip',
+        height: 21
     } as PieceType,
 }
 
