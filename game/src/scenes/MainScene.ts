@@ -11,6 +11,8 @@ export class MainScene extends BaseScene {
     f: Phaser.Input.Keyboard.Key;
     player: Player;
     waterSpin1: Phaser.GameObjects.Sprite;
+    a: Phaser.Input.Keyboard.Key;
+    d: Phaser.Input.Keyboard.Key;
 
     create() {
         this.f = this.input.keyboard.addKey('f');
@@ -19,19 +21,28 @@ export class MainScene extends BaseScene {
             this.game.canvas[this.game.device.fullscreen.request]();
         };
 
+        this.a = this.input.keyboard.addKey('a');
+        this.d = this.input.keyboard.addKey('d');
+
         this.centerOriginSprite("bg-water-1");
         // this.waterSpin1 = this.centerOriginSprite("bg-water-spin-1", globals.WIDTH * 0.3, 0)
         this.centerOriginSprite("bg-wall-1");
         this.centerOriginSprite("bg-outer-1");
         this.centerSprite("center-plate");
 
-        this.player = new Player(this, 4500);
+        this.player = new Player(this, 6500);
         debugService.init(this);
     }
 
     update(time: number, delta: number) {
         delta /= 16;
         debugService.update(this);
+        if (this.a.isDown) {
+            this.player.clawAngle -= delta * 0.05;
+        }
+        else if (this.d.isDown) {
+            this.player.clawAngle += delta * 0.05;
+        }
         this.player.update(time, delta);
         // this.waterSpin1.rotation += delta * 0.01;
     }
@@ -45,9 +56,13 @@ export class MainScene extends BaseScene {
         this.load.image("center-plate", "/assets/export-center-plate.png");
         this.load.image("claw", "/assets/export-claw.png");
         this.load.image("player-base", "/assets/export-player-base.png");
+        this.load.image("player-claw-back-2", "/assets/export-player-claw-back-2.png");
+        this.load.image("player-claw-back", "/assets/export-player-claw-back.png");
         this.load.image("player-eyes", "/assets/export-player-eyes.png");
         this.load.image("player-head-glass", "/assets/export-player-head-glass.png");
         this.load.image("player-head", "/assets/export-player-head.png");
         this.load.image("player-innertube", "/assets/export-player-innertube.png");
+        this.load.image("player-tube-2", "/assets/export-player-tube-2.png");
+        this.load.image("player-tube1", "/assets/export-player-tube1.png");
     }
 }

@@ -15,13 +15,15 @@
 for layer in $(aseprite -b --list-layers ./ase/mockup.aseprite); do
     if [[ $layer = bg* ]]
     then
+        echo "bg $layer";
         aseprite -b --layer $layer ./ase/mockup.aseprite --save-as "./game/assets/export-{layer}.png"
     else
-        aseprite -b --layer $layer --trim ./ase/mockup.aseprite --save-as "./game/assets/export-{layer}.png"
+        echo "norm $layer";
+        aseprite -b --layer $layer ./ase/mockup.aseprite --trim --save-as "./game/assets/export-{layer}.png"
     fi
 done
 
-# aseprite -b --split-layers ./ase/mockup.aseprite --save-as "./game/assets/export-{layer}.png"
+aseprite -b --split-layers --trim ./ase/sprites.aseprite --save-as "./game/assets/export-{layer}.png"
 for f in $(ls -l ./game/assets/ | grep export | cut -d":" -f2 | cut -d" " -f2); do
     fn=$(echo $f | sed -e's/export-//' | sed -e's/\.png//')
     echo 'this.load.image("'$fn'", "/assets/'$f'");'
