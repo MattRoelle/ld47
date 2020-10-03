@@ -39,7 +39,7 @@ export class Piece extends Phaser.GameObjects.Sprite {
     t: number = 0;
 
     get grabbable() {
-        return this.pieceType !== 'conveyor' && this.t > 0.15 && this.t < 0.85;
+        return this.pieceType !== 'conveyor' && this.t > 0.05 && this.t < 0.95;
     }
 
     get conveyor() {

@@ -68,19 +68,20 @@ export class MainScene extends BaseScene {
             const clawTipPos = this.player.clawTipPos;
 
             if (this.player.clawDirection === "outward") {
-                const closestPiece =
+                const piecesByDist =
                     this.pieces
                         .filter(piece => piece.grabbable)
                         .map(piece => ({
                             distance: helpers.dist(piece, clawTipPos),
                             piece
-                        }))
-                        .sort((a, b) => a.distance - b.distance)
-                    [0].piece;
+                        }));
 
-                debugService.circle(closestPiece.x, closestPiece.y, 20, 0x0000FF);
 
-                this.player.grab();
+                if (piecesByDist.length > 0) {
+                    piecesByDist.sort((a, b) => a.distance - b.distance);
+                    const closestPiece = piecesByDist[0].piece;
+                    this.player.grab(closestPiece);
+                }
             } else {
 
             }
@@ -144,27 +145,6 @@ export class MainScene extends BaseScene {
         }
         this.pieces = this.pieces.filter(p => !p.dead);
 
-        const clawTipPos = this.player.clawTipPos;
-
-        if (this.player.clawDirection === "outward") {
-            const piecesByDist =
-                this.pieces
-                    .filter(piece => piece.grabbable)
-                    .map(piece => ({
-                        distance: helpers.dist(piece, clawTipPos),
-                        piece
-                    }));
-
-
-            if (piecesByDist.length > 0) {
-                piecesByDist.sort((a, b) => a.distance - b.distance);
-                const closestPiece = piecesByDist[0].piece;
-                debugService.circle(closestPiece.x, closestPiece.y, 20, 0x0000FF);
-                this.player.grab();
-            }
-        } else {
-
-        }
     }
 
 

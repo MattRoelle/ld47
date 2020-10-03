@@ -2,6 +2,7 @@ import debugService from "../debugService";
 import globals from "../globals";
 import helpers from "../helpers";
 import { BaseScene } from "../scenes/BaseScene";
+import { Piece } from "./Piece";
 
 const N_TUBE_PIECES = 20;
 
@@ -13,7 +14,7 @@ export class Player extends Phaser.GameObjects.Container {
     targetClawAngleDelta: number = 0;
 
     clawDirection: 'inward' | 'outward' = 'outward';
-    clawExtLength: number = 4;
+    clawExtLength: number = 2.5;
     clawContainer: Phaser.GameObjects.Container;
     innertube: Phaser.GameObjects.Sprite;
     eyes: Phaser.GameObjects.Sprite;
@@ -61,7 +62,7 @@ export class Player extends Phaser.GameObjects.Container {
         // scene.add.existing(this);
     }
 
-    grab() {
+    grab(piece: Piece) {
 
     }
 
