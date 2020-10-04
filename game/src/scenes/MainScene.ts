@@ -23,6 +23,7 @@ export class MainScene extends BaseScene {
     pieces: Piece[] = [];
     orders: Order[] = [];
     director: GameDirector;
+    gears: any[];
 
     create() {
         //@ts-ignore
@@ -54,7 +55,7 @@ export class MainScene extends BaseScene {
         conveyorBase.setDepth(-300000000000)
         this.centerOriginSprite("bg-water").setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
         this.centerOriginSprite("top").setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
-        this.centerOriginSprite("frame").setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5).setDepth(1000000000000)
+        // this.centerOriginSprite("frame").setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5).setDepth(1000000000000)
 
         this.player = new Player(this);
         graphicsService.init(this);
@@ -66,6 +67,41 @@ export class MainScene extends BaseScene {
             const st = (i / 30) * BASE_CONVEYOR_SPEED;
             this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'top', t, this.time.now - st, -20000000000 - i));
             this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'bottom', t, this.time.now - st, -20000000000 - i));
+        }
+
+        const ngears = 0;
+        this.gears = [];
+        for (let i = 0; i < ngears; i++) {
+            for(let [x, y] of [
+                [
+                    ((i + 0.5) / ngears) * globals.WIDTH,
+                    -10 + (Math.random() * 15),
+                ],
+                [
+                    ((i + 0.5) / ngears) * globals.WIDTH,
+                    globals.HEIGHT -10 + (Math.random() * 15),
+                ],
+                [
+                    0 + (Math.random() * 15),
+                    ((i + 0.5) / ngears) * globals.HEIGHT,
+                ],
+                [
+                    globals.WIDTH - 5 + (Math.random() * 15),
+                    ((i + 0.5) / ngears) * globals.HEIGHT,
+                ],
+            ]) {
+                const s = 1 + Math.random() * 0.5;
+                const spr = this.add.sprite(x, y, 'gear');
+                spr
+                    .setOrigin(0.5, 0.5)
+                    .setScale(s, s)
+                    .setDepth(10000000000000000);
+
+                // @ts-ignore
+                spr.speed = 0.8 + Math.random() * 3;
+
+                this.gears.push(spr);
+            }
         }
 
         this.time.addEvent({
@@ -103,13 +139,13 @@ export class MainScene extends BaseScene {
             repeatDelay: 0,
         });
 
-        this.add
-            .sprite(410, 210, 'order-tv')
-            .setDepth(10000000000000000)
+        // this.add
+        //     .sprite(410, 210, 'order-tv')
+        //     .setDepth(10000000000000000)
 
-        this.add
-            .sprite(410, 50, 'order-tv')
-            .setDepth(10000000000000000)
+        // this.add
+        //     .sprite(410, 50, 'order-tv')
+        //     .setDepth(10000000000000000)
     }
 
     update(time: number, delta: number) {
@@ -135,6 +171,10 @@ export class MainScene extends BaseScene {
         this.orders = this.orders.filter(p => !p.dead);
 
         this.director.tick();
+
+        for (let g of this.gears) {
+            g.angle += delta * g.speed;
+        }
     }
 
 
@@ -188,5 +228,7 @@ export class MainScene extends BaseScene {
             startFrame: 36,
             endFrame: 58
         });
+
+        this.load.image("gear", "/assets/export-gear.png");
     }
 }

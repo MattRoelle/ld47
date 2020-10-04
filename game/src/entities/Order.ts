@@ -27,7 +27,7 @@ export class Order extends Phaser.GameObjects.Container {
         const spr = scene.add.sprite(0, 0, "order-ui")
         spr.setOrigin(0.5, 0);
         this.add(spr);
-        let previewY = 55;
+        let previewY = 45;
 
         for(let p of recipe.pieces as GrabbablePieceType[]) {
             const pieceSprite = scene.add.sprite(0, previewY, p.spriteKey);

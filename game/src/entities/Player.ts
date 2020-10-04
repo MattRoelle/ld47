@@ -288,8 +288,8 @@ export class Player extends Phaser.GameObjects.Container {
         const x = Math.cos(theta) * playerWidth;
         const y = Math.sin(theta) * playerHeight;
 
-        this.eyes.x = (Math.cos(theta) * 3) + 0;
-        this.eyes.y = (Math.sin(theta) * 3) - 2;
+        this.eyes.x = (Math.cos(this.clawTheta) * 3) + 0;
+        this.eyes.y = (Math.sin(this.clawTheta) * 3) - 2;
         // this.eyes.x = (Math.cos(theta) * 12) + 15;
         // this.eyes.y = (Math.sin(theta) * 5) + 5;
 
