@@ -240,6 +240,10 @@ export class MainScene extends BaseScene {
         this.load.audio("click2", "/assets/click2.wav")
         this.load.audio("takeoff", "/assets/takeoff.wav")
 
+        this.load.image("player-mouth-open", "/assets/export-player-mouth-open.png");
+        this.load.image("player-mouth", "/assets/export-player-mouth.png");
+        this.load.image("player-eyebrow", "/assets/export-player-eyebrow.png");
+
 
         this.load.spritesheet("explode", "/assets/animations/explode.png", {
             frameWidth: 100,

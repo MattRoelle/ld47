@@ -24,7 +24,7 @@ export class Player extends Phaser.GameObjects.Container {
     ropeGraphics: Phaser.GameObjects.Graphics;
     base: Phaser.GameObjects.Sprite;
     head: Phaser.GameObjects.Sprite;
-    glass: Phaser.GameObjects.Sprite;
+    // glass: Phaser.GameObjects.Sprite;
     pieces: Piece[];
 
     clawTheta: number = 0;
@@ -43,6 +43,13 @@ export class Player extends Phaser.GameObjects.Container {
     targetRotationDuration: number = 6500;
 
     mousePos: { x: number; y: number } = { x: 0 , y: 0 };
+    mouth: Phaser.GameObjects.Sprite;
+    lid: Phaser.GameObjects.Sprite;
+    lid2: Phaser.GameObjects.Sprite;
+
+    tlidy:number= -5;
+    lidy:number= -5;
+    // openmouth: any;
 
     constructor(
         scene: MainScene,
@@ -53,6 +60,17 @@ export class Player extends Phaser.GameObjects.Container {
         scene.input.on('pointermove', (ev: any) => {
             this.mousePos.x = ev.worldX;
             this.mousePos.y = ev.worldY;
+        })
+
+        scene.time.addEvent({
+            callback: () => {
+                this.tlidy = 0;
+                scene.time.delayedCall(150, () => {
+                    this.tlidy = -8;
+                })
+            },
+            repeat: -1,
+            delay: 2500
         })
 
 
@@ -76,9 +94,32 @@ export class Player extends Phaser.GameObjects.Container {
         this.head.setOrigin(0.5, 0.5)
         this.ropeGraphics = scene.add.graphics();
         this.ropeGraphics.setDepth(1100)
+
         this.eyes = scene.centerOriginSprite("player-eyes", 24, -14);
         this.eyes.setOrigin(0.5, 0.5)
         this.eyes.setDepth(1175)
+
+        this.lid = scene.centerOriginSprite("player-eyebrow", 24, -14);
+        this.lid.setMask(new Phaser.Display.Masks.BitmapMask(scene, this.eyes));
+        this.lid.setOrigin(0.5, 0.5)
+        this.lid.setDepth(1180)
+
+        this.mouth = scene.centerOriginSprite("player-mouth", 24, -14);
+        this.mouth.setOrigin(0.5, 0.5)
+        this.mouth.setDepth(1180)
+
+        this.lid2 = scene.centerOriginSprite("player-eyebrow", 24, -14);
+        this.lid2.setMask(new Phaser.Display.Masks.BitmapMask(scene, this.eyes));
+        this.lid2.setOrigin(0.5, 0.5)
+        this.lid2.setDepth(1180)
+
+        this.mouth = scene.centerOriginSprite("player-mouth", 24, -14);
+        this.mouth.setOrigin(0.5, 0.5)
+        this.mouth.setDepth(1175)
+
+        // this.openmouth = scene.centerOriginSprite("player-mouth-open", 24, -14);
+        // this.openmouth.setOrigin(0.5, 0.5)
+        // this.openmouth.setDepth(1175)
 
         this.tubePieces = [];
         for (let i = 0; i < N_TUBE_PIECES; i++) {
@@ -86,12 +127,13 @@ export class Player extends Phaser.GameObjects.Container {
             this.tubePieces.push(spr);
         }
 
-        this.glass = scene.centerOriginSprite("player-head-glass");
-        this.glass.setBlendMode(Phaser.BlendModes.MULTIPLY);
-        this.glass.setPosition(10, -21)
-        this.glass.setDepth(1300)
-        this.glass.setOrigin(0.5, 0.5)
-        this.glass.alpha = 0.75;
+        // this.glass = scene.centerOriginSprite("player-head-glass");
+        // this.glass.setBlendMode(Phaser.BlendModes.MULTIPLY);
+        // this.glass.setPosition(10, -21)
+        // this.glass.setDepth(1300)
+        // this.glass.setOrigin(0.5, 0.5)
+        // this.glass.alpha = 0.75;
+        // this.glass.setActive(false);
 
         this.baseRotation = 0;
 
@@ -214,6 +256,10 @@ export class Player extends Phaser.GameObjects.Container {
                         }
                         this.scene.time.delayedCall(blinkTime, () => {
                             helpers.explosion(globals.WIDTH / 2, globals.HEIGHT / 2, this.scene)
+                            // this.tlidy = -8;
+                            this.scene.time.delayedCall(500, () => {
+                                // this.tlidy = -5;
+                            });
                             this.scene.cameras.main.shake(200, 0.025)
                             for (let p of pcs) {
                                 p.tintFill = true;
@@ -311,6 +357,7 @@ export class Player extends Phaser.GameObjects.Container {
 
         this.eyes.x = (Math.cos(this.clawTheta) * 3) + 0;
         this.eyes.y = (Math.sin(this.clawTheta) * 3) - 2;
+
         // this.eyes.x = (Math.cos(theta) * 12) + 15;
         // this.eyes.y = (Math.sin(theta) * 5) + 5;
 
@@ -322,6 +369,28 @@ export class Player extends Phaser.GameObjects.Container {
 
         this.eyes.x += this.head.x;
         this.eyes.y += this.head.y;
+
+        this.mouth.x = this.eyes.x;
+        this.mouth.y = this.eyes.y + 7;
+
+        // this.openmouth.x = this.mouth.x;
+        // this.openmouth.y = this.mouth.y;
+
+        // if (this.grabbing) {
+            // this.tlidy = -4;
+            // this.mouth.setAlpha(0);
+            // this.openmouth.setAlpha(1)
+        // } else {
+            // this.tlidy = -9;
+            // this.mouth.setAlpha(1);
+            // this.openmouth.setAlpha(0)
+        // }
+
+        this.lid.x = this.eyes.x;
+        this.lid.y = this.eyes.y + this.lidy;
+
+        this.lid2.x = this.eyes.x;
+        this.lid2.y = this.eyes.y - this.lidy;
 
         this.sendToBack(this.innertube);
 
@@ -417,6 +486,8 @@ export class Player extends Phaser.GameObjects.Container {
 
         this.rotationDuration = helpers.lerp(this.rotationDuration, this.targetRotationDuration, delta * 0.1);
 
+        this.lidy = helpers.lerp(this.lidy, this.tlidy, delta * 0.15);
+
         const t = ((this.pos % 5000) / 5000) * Math.PI * 2;
         const x = 26 + Math.cos(t) * globals.ARENA_W * (globals.WIDTH / 2);
         const y = 20 + Math.sin(t) * globals.ARENA_H * (globals.HEIGHT / 2);
@@ -438,8 +509,8 @@ export class Player extends Phaser.GameObjects.Container {
         this.base.y = this.y - 10;
         this.head.x = this.x;
         this.head.y = this.y - 20;
-        this.glass.x = this.x;
-        this.glass.y = this.y - 20;
+        // this.glass.x = this.x;
+        // this.glass.y = this.y - 20;
 
         this.calculateClawPosition(delta);
         this.draw3dObjs();
