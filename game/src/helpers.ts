@@ -40,8 +40,8 @@ function lerpRadians(a: number, b: number, lerpFactor: number): number {
     return result;
 }
 
-function explosion(x: number, y: number, scene: Phaser.Scene) {
-    spawnExplosion(x, y, scene);
+function explosion(x: number, y: number, scene: Phaser.Scene, noSound: boolean = false) {
+    spawnExplosion(x, y, scene, noSound);
     // for(let i = 0; i < Math.random() * 4; i++) {
     //     scene.time.delayedCall(i * 100, () => {
     //         spawnExplosion(x, y, scene);
@@ -49,14 +49,17 @@ function explosion(x: number, y: number, scene: Phaser.Scene) {
     // }
 }
 
-function spawnExplosion(x: number, y: number, scene: Phaser.Scene) {
+function spawnExplosion(x: number, y: number, scene: Phaser.Scene, noSound: boolean = false) {
     const spr = scene.add.sprite(x, y, 'explode');
     spr.play('explode', true, 30);
     spr.rotation = Math.random () * 2 * Math.PI;
     const s = 2 + (Math.random() * 0.4);
     spr.setScale(s, s);
     spr.setDepth(1000000000000000);
-    scene.sound.play("explode");
+
+    if (!noSound) {
+        scene.sound.play("explode");
+    }
 }
 
 function splash(x: number, y: number, depth: number, scene: Phaser.Scene) {

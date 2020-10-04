@@ -10,6 +10,8 @@ import { GameDirector } from '../entities/GameDirector';
 import { Order } from '../entities/Order';
 import { HealthLight } from '../entities/HealthLight';
 
+let s: Phaser.Sound.BaseSound;
+
 export class TitleScene extends BaseScene {
     constructor() {
         super({
@@ -31,10 +33,12 @@ export class TitleScene extends BaseScene {
 
         this.fadeIn();
 
-        this.sound.play("theme", {
-            loop: true,
-            name: 'bgm',
-        });
+        if (!s) {
+            s = this.sound.add("theme", {
+                loop: true,
+            });
+            s.play();
+        }
     }
 
     update(time: number, delta: number) {

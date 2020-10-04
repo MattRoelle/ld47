@@ -150,8 +150,20 @@ export class GameDirector {
         if (this.startedGameOver) return;
         this.startedGameOver = true;
 
-        globals.SCORE = this.score;
-        this.scene.fadeOut("game-over")
+        this.scene.sound.play("explode");
+        for(let i = 0; i < 300; i++) {
+            this.scene.time.delayedCall(i * 25, () => {
+                if (i % 12 == 0) {
+                    this.scene.sound.play("explode");
+                }
+                helpers.explosion(Math.random() * globals.WIDTH, Math.random() * globals.HEIGHT, this.scene, true);
+            })
+        }
+
+        this.scene.time.delayedCall(1500, () => {
+            globals.SCORE = this.score;
+            this.scene.fadeOut("game-over")
+        })
     }
 
     tick() {
