@@ -55,7 +55,7 @@ function spawnExplosion(x: number, y: number, scene: Phaser.Scene) {
     spr.rotation = Math.random () * 2 * Math.PI;
     const s = 2 + (Math.random() * 0.4);
     spr.setScale(s, s);
-    spr.setDepth(100000000);
+    spr.setDepth(1000000000000000);
 }
 
 function splash(x: number, y: number, depth: number, scene: Phaser.Scene) {

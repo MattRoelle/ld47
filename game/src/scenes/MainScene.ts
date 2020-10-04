@@ -50,10 +50,11 @@ export class MainScene extends BaseScene {
         this.a = this.input.keyboard.addKey('a');
         this.d = this.input.keyboard.addKey('d');
 
-        const conveyorBase = this.centerOriginSprite("bg-conveyor-base");
+        const conveyorBase = this.centerOriginSprite("bg-conveyor-base") .setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5);
         conveyorBase.setDepth(-300000000000)
-        this.centerOriginSprite("bg-water");
-        this.centerOriginSprite("top");
+        this.centerOriginSprite("bg-water") .setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
+        this.centerOriginSprite("top").setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
+        this.centerOriginSprite("frame").setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5).setDepth(1000000000000)
 
         this.player = new Player(this, 6500);
         graphicsService.init(this);
@@ -62,7 +63,7 @@ export class MainScene extends BaseScene {
 
         for (let i = 0; i < 30; i++) {
             const t = BASE_CONVEYOR_SPEED;
-            const st = (i / 35) * BASE_CONVEYOR_SPEED;
+            const st = (i / 30) * BASE_CONVEYOR_SPEED;
             this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'top', t, this.time.now - st, -20000000000 - i));
             this.conveyorPieces.push(new Piece(this, PIECES.conveyor, 'bottom', t, this.time.now - st, -20000000000 - i));
         }
@@ -157,6 +158,9 @@ export class MainScene extends BaseScene {
         this.load.image("water", "/assets/export-water.png");
         this.load.image("order-ui", "/assets/export-order-ui.png");
         this.load.image("splash-particle-1", "/assets/export-splash-particle-1.png");
+        this.load.image("progress-bar", "/assets/export-progress-bar.png");
+        this.load.image("frame", "/assets/export-frame.png");
+        this.load.image("single-rocket", "/assets/export-single-rocket.png");
 
 
         this.load.spritesheet("explode", "/assets/animations/explode.png", {

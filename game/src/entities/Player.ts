@@ -39,10 +39,11 @@ export class Player extends Phaser.GameObjects.Container {
     piecesInCenter: Piece[] = [];
     exploding: boolean;
     lastSplashAt: number = -100;
+    rotationDuration: number = 6500;
+    targetRotationDuration: number = 6500;
 
     constructor(
         scene: MainScene,
-        public rotationDuration: number
     ) {
         super(scene, 0, 0);
 
@@ -135,15 +136,12 @@ export class Player extends Phaser.GameObjects.Container {
     }
 
     takeOff() {
+        if (this.piecesInCenter.length === 0) return;
+
         const pcs = [...this.piecesInCenter];
         this.piecesInCenter = [];
 
         pcs[0].startThruster();
-
-        for(let p of pcs) {
-            p.tintFill = true;
-            p.setTint(0x00FF00);
-        }
 
         this.scene.cameras.main.shake(1300, 0.004);
 
@@ -383,6 +381,8 @@ export class Player extends Phaser.GameObjects.Container {
 
 
     update(time: number, delta: number) {
+        this.rotationDuration = helpers.lerp(this.rotationDuration, this.targetRotationDuration, delta * 0.1);
+
         const t = (((time - this.pauseTime) % this.rotationDuration) / this.rotationDuration) * Math.PI * 2;
         const x = 26 + Math.cos(t) * globals.ARENA_W * (globals.WIDTH / 2);
         const y = 20 + Math.sin(t) * globals.ARENA_H * (globals.HEIGHT / 2);
