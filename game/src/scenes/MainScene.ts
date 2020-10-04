@@ -211,6 +211,7 @@ export class MainScene extends BaseScene {
         this.load.image("top", "/assets/export-top.png");
         this.load.image("water", "/assets/export-water.png");
         this.load.image("highlight", "/assets/export-highlight.png");
+        this.load.image("rocket-tip-2", "/assets/export-rocket-tip-2.png");
 
 
         this.load.spritesheet("explode", "/assets/animations/explode.png", {

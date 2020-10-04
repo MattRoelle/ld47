@@ -7,9 +7,13 @@ export interface Recipe {
 }
 
 export const RECIPES = {
-    BASIC: { pieces: [PIECES.base1, PIECES.tip1] } as Recipe,
+    RED: { pieces: [PIECES.base1, PIECES.tip1] } as Recipe,
+    RED_FULL: { pieces: [PIECES.base1, PIECES.mid1, PIECES.tip1] } as Recipe,
+    RED_DOUBLE: { pieces: [PIECES.base1, PIECES.mid1, PIECES.mid1, PIECES.tip1] } as Recipe,
+    BLUE: { pieces: [PIECES.base1, PIECES.tip2] } as Recipe,
+    BLUE_FULL: { pieces: [PIECES.base1, PIECES.mid1, PIECES.tip2] } as Recipe,
+    BLUE_DOUBLE: { pieces: [PIECES.base1, PIECES.mid1, PIECES.mid1, PIECES.tip2] } as Recipe,
     SINGLE: { pieces: [PIECES.single] } as Recipe,
-    BASIC_FULL: { pieces: [PIECES.base1, PIECES.mid1, PIECES.tip1] } as Recipe,
 }
 
 export class Order extends Phaser.GameObjects.Container {
@@ -20,7 +24,7 @@ export class Order extends Phaser.GameObjects.Container {
     failed: boolean;
 
     constructor(scene: Phaser.Scene, public recipe: Recipe, public duration: number) {
-        super(scene, globals.WIDTH, -8)
+        super(scene, -100, 0)
         scene.add.existing(this);
         this.setDepth(50000000000000);
 
@@ -28,6 +32,13 @@ export class Order extends Phaser.GameObjects.Container {
         spr.setOrigin(0, 0.5);
         this.add(spr);
         let previewY = 5;
+
+        scene.add.tween({
+            targets: this,
+            x: 0,
+            duration: 1500,
+            ease: Phaser.Math.Easing.Bounce.Out
+        })
 
         for (let p of recipe.pieces as GrabbablePieceType[]) {
             const pieceSprite = scene.add.sprite(20, previewY, p.spriteKey);
@@ -77,9 +88,8 @@ export class Order extends Phaser.GameObjects.Container {
         // this.graphics.setAlpha(0.5)
 
         if (!this.completed) {
-            this.x = 0;
         }
 
-        this.y = globals.HEIGHT * 1.05 * (1 - t);
+        this.y = -20 + globals.HEIGHT * (1 - t);
     }
 }

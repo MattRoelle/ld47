@@ -26,10 +26,10 @@ const STAGES: Stage[] = [
         ],
         recipes: [
             RECIPES.SINGLE,
-            RECIPES.BASIC
+            RECIPES.RED
         ],
-        nOrders: 2,
-        baseOrderDuration: 20000,
+        nOrders: 3,
+        baseOrderDuration: 15000,
         conveyorSpeed: 16000,
         playerRotSpeed: 15,
         maxOrders: 2,
@@ -44,11 +44,11 @@ const STAGES: Stage[] = [
             PIECES.single,
         ],
         recipes: [
-            RECIPES.BASIC_FULL,
-            RECIPES.BASIC
+            RECIPES.RED_FULL,
+            RECIPES.RED
         ],
-        nOrders: 4,
-        baseOrderDuration: 20000,
+        nOrders: 5,
+        baseOrderDuration: 14000,
         conveyorSpeed: 16000,
         playerRotSpeed: 20,
         maxOrders: 3,
@@ -60,19 +60,22 @@ const STAGES: Stage[] = [
             PIECES.mid1,
             PIECES.base1,
             PIECES.tip1,
-            PIECES.single
+            PIECES.tip2,
+            PIECES.single,
         ],
         recipes: [
-            RECIPES.BASIC_FULL,
-            RECIPES.BASIC,
-            RECIPES.SINGLE
+            RECIPES.BLUE,
+            RECIPES.BLUE_FULL,
+            RECIPES.RED_FULL,
+            RECIPES.RED,
+            RECIPES.SINGLE,
         ],
         nOrders: 7,
-        baseOrderDuration: 18000,
+        baseOrderDuration: 12000,
         conveyorSpeed: 15000,
         playerRotSpeed: -22,
         maxOrders: 4,
-        orderRate: 5000,
+        orderRate: 4000,
         pieceSpawnRate: 800,
     },
     {
@@ -80,20 +83,48 @@ const STAGES: Stage[] = [
             PIECES.mid1,
             PIECES.base1,
             PIECES.tip1,
-            PIECES.single
+            PIECES.tip2,
+            PIECES.single,
         ],
         recipes: [
-            RECIPES.BASIC_FULL,
-            RECIPES.BASIC,
-            RECIPES.SINGLE
+            RECIPES.RED_FULL,
+            RECIPES.RED,
+            RECIPES.SINGLE,
+            RECIPES.BLUE,
+            RECIPES.BLUE_FULL,
         ],
         nOrders: 10,
-        baseOrderDuration: 18000,
+        baseOrderDuration: 10000,
         conveyorSpeed: 13000,
         playerRotSpeed: -24,
         maxOrders: 4,
-        orderRate: 5000,
+        orderRate: 3700,
         pieceSpawnRate: 600,
+    },
+    {
+        availablePiecePool: [
+            PIECES.mid1,
+            PIECES.base1,
+            PIECES.tip1,
+            PIECES.tip2,
+            PIECES.single,
+        ],
+        recipes: [
+            RECIPES.RED_FULL,
+            RECIPES.RED,
+            RECIPES.SINGLE,
+            RECIPES.BLUE,
+            RECIPES.BLUE_FULL,
+            RECIPES.RED_DOUBLE,
+            RECIPES.BLUE_DOUBLE
+        ],
+        nOrders: 12,
+        baseOrderDuration: 10000,
+        conveyorSpeed: 12000,
+        playerRotSpeed: 28,
+        maxOrders: 5,
+        orderRate: 3400,
+        pieceSpawnRate: 500,
     },
 ];
 
@@ -192,7 +223,7 @@ export class GameDirector {
 
     nextStage() {
         this.nOrdersComplete = 0;
-        if (this.currentStageIdx < STAGES.length - 1) {
+        if (this.currentStageIdx < STAGES.length - 2) {
             this.currentStageIdx++;
         }
 
@@ -213,20 +244,15 @@ export class GameDirector {
         this.scene.orders.push(order);
     }
 
+    nPieces: number = 0;
     spawnPiece() {
-        let newPt: PieceType;
-
-        for(let order of this.scene.orders) {
-            for(let rp of order.recipe.pieces) {
-                if (!this.scene.pieces.find((p: any) => p.pieceType === rp)) {
-                    newPt = rp;
-                }
+        for(let c of ['top', 'bottom']) {
+            this.nPieces++;
+            if (Math.random() > 0.9) {
+                this.nPieces++;
             }
+            this.scene.pieces.push(new Piece(this.scene, this.stage.availablePiecePool[this.nPieces % this.stage.availablePiecePool.length], c as any, this.stage.conveyorSpeed, this.scene.time.now));
         }
 
-        if (!newPt) {
-            newPt = helpers.sample(this.stage.availablePiecePool);
-        }
-        this.scene.pieces.push(new Piece(this.scene, newPt, Math.random() > 0.5 ? 'top' : 'bottom', this.stage.conveyorSpeed, this.scene.time.now));
     }
 }

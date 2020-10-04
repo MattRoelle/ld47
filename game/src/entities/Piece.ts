@@ -28,6 +28,11 @@ export const PIECES = {
         spriteKey: 'rocket-tip-1',
         height: 33
     } as PieceType,
+    tip2: {
+        conveyor: false,
+        spriteKey: 'rocket-tip-2',
+        height: 33
+    } as PieceType,
     mid1: {
         conveyor: false,
         spriteKey: 'rocket-mid-1',
