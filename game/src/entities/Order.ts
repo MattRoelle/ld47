@@ -23,6 +23,10 @@ export class Order extends Phaser.GameObjects.Container {
     progressBar: Phaser.GameObjects.Sprite;
     failed: boolean;
 
+    get points() {
+        return this.recipe.pieces.length * 100;
+    }
+
     constructor(scene: Phaser.Scene, public recipe: Recipe, public duration: number) {
         super(scene, -100, 0)
         scene.add.existing(this);
@@ -90,6 +94,6 @@ export class Order extends Phaser.GameObjects.Container {
         if (!this.completed) {
         }
 
-        this.y = -20 + globals.HEIGHT * (1 - t);
+        this.y = -10 + globals.HEIGHT * (1 - t);
     }
 }

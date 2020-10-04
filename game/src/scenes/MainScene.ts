@@ -14,6 +14,12 @@ const SCREEN_TRANSITION_TIME = 200;
 const BASE_CONVEYOR_SPEED = 12000;
 
 export class MainScene extends BaseScene {
+    scoreText: Phaser.GameObjects.Text;
+    constructor() {
+        super({
+            key: 'main'
+        })
+    }
     f: Phaser.Input.Keyboard.Key;
     player: Player;
     waterSpin1: Phaser.GameObjects.Sprite;
@@ -29,6 +35,13 @@ export class MainScene extends BaseScene {
     health: number = 5;
 
     create() {
+        this.health = 5;
+        this.pieces = [];
+        this.orders = [];
+        this.conveyorPieces = [];
+        this.fadeIn();
+
+
         //@ts-ignore
         window.scene = this;
 
@@ -36,8 +49,7 @@ export class MainScene extends BaseScene {
 
         this.f = this.input.keyboard.addKey('f');
         this.f.onDown = (ev) => {
-            // @ts-ignore
-            this.game.canvas[this.game.device.fullscreen.request]();
+            this.scale.startFullscreen();
         };
 
         this.a = this.input.keyboard.addKey('a');
@@ -62,6 +74,8 @@ export class MainScene extends BaseScene {
         this.centerOriginSprite("top").setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
         this.centerOriginSprite("frame").setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5).setDepth(1000000000000)
 
+        this.scoreText = this.add.text(globals.WIDTH - 20, globals.HEIGHT - 2, "0").setColor("white").setStroke("#000", 4).setFontStyle("bold").setFontSize(20).setOrigin(1, 1)
+
         this.player = new Player(this);
         graphicsService.init(this);
 
@@ -85,8 +99,8 @@ export class MainScene extends BaseScene {
             this.add.sprite(globals.WIDTH - 102, 2 + globals.HEIGHT / 2, 'gear').setScale(2, 2).setDepth(1000000000000000),
         );
 
-        for(let g of this.gears) {
-                // @ts-ignore
+        for (let g of this.gears) {
+            // @ts-ignore
             g.speed = 0.8 + Math.random() * 3;
         }
 
@@ -176,6 +190,8 @@ export class MainScene extends BaseScene {
 
 
     preload() {
+        this.load.image("Layer", "/assets/export-Layer");
+        this.load.image("Layer", "/assets/export-Layer");
         this.load.image("bg-conveyor-base", "/assets/export-bg-conveyor-base.png");
         this.load.image("bg-top-1", "/assets/export-bg-top-1.png");
         this.load.image("bg-water-1", "/assets/export-bg-water-1.png");
@@ -187,7 +203,12 @@ export class MainScene extends BaseScene {
         this.load.image("conveyor-base", "/assets/export-conveyor-base.png");
         this.load.image("conveyor-piece", "/assets/export-conveyor-piece.png");
         this.load.image("frame", "/assets/export-frame.png");
+        this.load.image("gear", "/assets/export-gear.png");
         this.load.image("guide", "/assets/export-guide.png");
+        this.load.image("health-light-glow", "/assets/export-health-light-glow.png");
+        this.load.image("health-light-off", "/assets/export-health-light-off.png");
+        this.load.image("health-light", "/assets/export-health-light.png");
+        this.load.image("highlight", "/assets/export-highlight.png");
         this.load.image("order-progress-bar", "/assets/export-order-progress-bar.png");
         this.load.image("order-tv", "/assets/export-order-tv.png");
         this.load.image("order-ui", "/assets/export-order-ui.png");
@@ -205,13 +226,19 @@ export class MainScene extends BaseScene {
         this.load.image("progress-bar", "/assets/export-progress-bar.png");
         this.load.image("rocket-base-1", "/assets/export-rocket-base-1.png");
         this.load.image("rocket-mid-1", "/assets/export-rocket-mid-1.png");
+        this.load.image("rocket-rip-2", "/assets/export-rocket-rip-2.png");
         this.load.image("rocket-tip-1", "/assets/export-rocket-tip-1.png");
+        this.load.image("rocket-tip-2", "/assets/export-rocket-tip-2.png");
         this.load.image("single-rocket", "/assets/export-single-rocket.png");
         this.load.image("splash-particle-1", "/assets/export-splash-particle-1.png");
         this.load.image("top", "/assets/export-top.png");
         this.load.image("water", "/assets/export-water.png");
-        this.load.image("highlight", "/assets/export-highlight.png");
-        this.load.image("rocket-tip-2", "/assets/export-rocket-tip-2.png");
+
+        this.load.audio("explode", "/assets/explode.wav")
+        this.load.audio("pickup", "/assets/pickup.wav")
+        this.load.audio("click", "/assets/click.wav")
+        this.load.audio("click2", "/assets/click2.wav")
+        this.load.audio("takeoff", "/assets/takeoff.wav")
 
 
         this.load.spritesheet("explode", "/assets/animations/explode.png", {
@@ -227,10 +254,5 @@ export class MainScene extends BaseScene {
             startFrame: 36,
             endFrame: 58
         });
-
-        this.load.image("gear", "/assets/export-gear.png");
-        this.load.image("health-light-glow", "/assets/export-health-light-glow.png");
-        this.load.image("health-light-off", "/assets/export-health-light-off.png");
-        this.load.image("health-light", "/assets/export-health-light.png");
     }
 }

@@ -1,7 +1,10 @@
 import * as Phaser from 'phaser';
 import globals from './globals';
 import ScaleManager from './scaleManager';
+import { GameOver } from './scenes/GameOver';
 import { MainScene } from './scenes/MainScene';
+import { TitleScene } from './scenes/TitleScene';
+import { TutorialScene } from './scenes/TutorialScene';
 
 const game = new Phaser.Game({
     type: Phaser.WEBGL,
@@ -10,7 +13,12 @@ const game = new Phaser.Game({
     scale: {
         mode: Phaser.Scale.FIT
     },
-    scene: MainScene,
+    scene: [
+        TitleScene,
+        TutorialScene,
+        MainScene,
+        GameOver
+    ],
     render: {
         pixelArt: true,
         roundPixels: true,

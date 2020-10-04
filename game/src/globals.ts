@@ -6,5 +6,6 @@ export default {
     WIDTH: 1920/4,
     HEIGHT: 1080/4,
     ARENA_W: 0.32,
-    ARENA_H: 0.44
+    ARENA_H: 0.44,
+    SCORE: 0
 }

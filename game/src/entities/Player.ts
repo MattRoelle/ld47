@@ -158,7 +158,11 @@ export class Player extends Phaser.GameObjects.Container {
 
         this.scene.cameras.main.shake(1300, 0.004);
 
+        this.scene.time.delayedCall(100, () => {
+            this.scene.sound.play("takeoff");
+        });
         this.scene.time.delayedCall(300, () => {
+            this.scene.sound.play("pickup");
             for (let p of pcs) {
                 p.setTint(0xFFFFFF);
                 this.scene.tweens.add({
@@ -171,6 +175,7 @@ export class Player extends Phaser.GameObjects.Container {
             }
             this.scene.time.delayedCall(1700, () => {
                 this.scene.cameras.main.shake(200, 0.02);
+                helpers.explosion(globals.WIDTH / 2, -30, this.scene)
             });
         })
 
@@ -249,6 +254,8 @@ export class Player extends Phaser.GameObjects.Container {
         const cp = this.getClosestPiece();
         if (!cp) return;
 
+        this.scene.sound.play("click");
+
         this.grabbing = true;
         this.grabbingPiece = cp;
 
@@ -277,8 +284,9 @@ export class Player extends Phaser.GameObjects.Container {
                     y: (globals.HEIGHT / 2) - centerHeight + 10,
                     duration: 300,
                     ease: Phaser.Math.Easing.Quadratic.Out,
-                    completeDelay: 100,
+                    completeDelay: 0,
                     onComplete: () => {
+                        this.scene.sound.play("click2")
                         this.grabbing = false;
                         this.hasPickedUpPiece = false;
                     }

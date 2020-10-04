@@ -1,5 +1,6 @@
 import { matches } from 'lodash';
 import * as Phaser from 'phaser';
+import globals from '../globals';
 import helpers from '../helpers';
 import { MainScene } from "../scenes/MainScene";
 import { Order, Recipe, RECIPES } from './Order';
@@ -144,11 +145,20 @@ export class GameDirector {
         this.nextStage();
     }
 
+    startedGameOver: boolean = false;
+    gameOver() {
+        if (this.startedGameOver) return;
+        this.startedGameOver = true;
+
+        globals.SCORE = this.score;
+        this.scene.fadeOut("game-over")
+    }
+
     tick() {
         const t = this.scene.time.now;
 
         if (this.scene.health <= 0) {
-
+            this.gameOver();
         } else {
             if (t - this.lastSpawnedPieceAt > this.stage.pieceSpawnRate) {
                 this.lastSpawnedPieceAt = t;
@@ -230,8 +240,12 @@ export class GameDirector {
         this.scene.player.targetRotSpeed = this.stage.playerRotSpeed;
     }
 
+    score: number = 0;
+
     completeOrder(order: Order) {
         order.complete();
+        this.score += order.points;
+        this.scene.scoreText.setText(this.score.toString())
         this.nOrdersComplete++;
         this.scene.player.takeOff();
         if (this.nOrdersComplete >= this.stage.nOrders) {

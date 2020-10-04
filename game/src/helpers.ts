@@ -56,6 +56,7 @@ function spawnExplosion(x: number, y: number, scene: Phaser.Scene) {
     const s = 2 + (Math.random() * 0.4);
     spr.setScale(s, s);
     spr.setDepth(1000000000000000);
+    scene.sound.play("explode");
 }
 
 function splash(x: number, y: number, depth: number, scene: Phaser.Scene) {
