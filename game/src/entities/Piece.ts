@@ -46,16 +46,16 @@ export const PIECES = {
 }
 
 const SEMI_CIRCLE_CONVEYOR: [number, number][] = [
-    [-0.25, 0.55],
-    [0, 0.55],
-    [0.21, 0.55],
-    [0.27, 0.72],
-    [0.42, 0.9],
-    [0.58, 0.9],
-    [0.73, 0.72],
-    [0.78, 0.55],
-    [1, 0.55],
-    [1.25, 0.55],
+    [-0.25, 0.56],
+    [0, 0.56],
+    [0.18, 0.55],
+    [0.27, 0.79],
+    [0.42, 0.94],
+    [0.58, 0.94],
+    [0.73, 0.79],
+    [0.82, 0.55],
+    [1, 0.56],
+    [1.25, 0.56],
 ]
 
 const CONVEYOR_NODES: { [k in ConveyorLayout]: [number, number][] } = {
@@ -141,7 +141,7 @@ export class Piece extends Phaser.GameObjects.Sprite {
 
         if (this.pieceType.conveyor) {
             this.setOrigin(1, 0.5)
-            this.setBlendMode(Phaser.BlendModes.MULTIPLY)
+            // this.setBlendMode(Phaser.BlendModes.MULTIPLY)
             // this.setAlpha(0.4)
             this.scene.children.sendToBack(this);
         } else {
