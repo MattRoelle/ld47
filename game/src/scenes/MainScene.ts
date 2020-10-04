@@ -50,13 +50,13 @@ export class MainScene extends BaseScene {
         this.a = this.input.keyboard.addKey('a');
         this.d = this.input.keyboard.addKey('d');
 
-        const conveyorBase = this.centerOriginSprite("bg-conveyor-base") .setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5);
+        const conveyorBase = this.centerOriginSprite("bg-conveyor-base").setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5);
         conveyorBase.setDepth(-300000000000)
-        this.centerOriginSprite("bg-water") .setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
+        this.centerOriginSprite("bg-water").setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
         this.centerOriginSprite("top").setScale(0.9, 0.9).setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5)
         this.centerOriginSprite("frame").setPosition(globals.WIDTH / 2, globals.HEIGHT / 2).setOrigin(0.5, 0.5).setDepth(1000000000000)
 
-        this.player = new Player(this, 6500);
+        this.player = new Player(this);
         graphicsService.init(this);
 
         this.director = new GameDirector(this);
@@ -102,6 +102,14 @@ export class MainScene extends BaseScene {
             repeat: 0,
             repeatDelay: 0,
         });
+
+        this.add
+            .sprite(410, 210, 'order-tv')
+            .setDepth(10000000000000000)
+
+        this.add
+            .sprite(410, 50, 'order-tv')
+            .setDepth(10000000000000000)
     }
 
     update(time: number, delta: number) {
@@ -121,7 +129,7 @@ export class MainScene extends BaseScene {
         }
         this.conveyorPieces = this.conveyorPieces.filter(p => !p.dead);
 
-        for(let u of this.orders) {
+        for (let u of this.orders) {
             u.update(time, delta);
         }
         this.orders = this.orders.filter(p => !p.dead);
@@ -133,6 +141,7 @@ export class MainScene extends BaseScene {
     preload() {
         this.load.image("bg-conveyor-base", "/assets/export-bg-conveyor-base.png");
         this.load.image("bg-top-1", "/assets/export-bg-top-1.png");
+        this.load.image("bg-water-1", "/assets/export-bg-water-1.png");
         this.load.image("bg-water", "/assets/export-bg-water.png");
         this.load.image("bg", "/assets/export-bg.png");
         this.load.image("center-plate", "/assets/export-center-plate.png");
@@ -140,7 +149,11 @@ export class MainScene extends BaseScene {
         this.load.image("claw", "/assets/export-claw.png");
         this.load.image("conveyor-base", "/assets/export-conveyor-base.png");
         this.load.image("conveyor-piece", "/assets/export-conveyor-piece.png");
+        this.load.image("frame", "/assets/export-frame.png");
         this.load.image("guide", "/assets/export-guide.png");
+        this.load.image("order-progress-bar", "/assets/export-order-progress-bar.png");
+        this.load.image("order-tv", "/assets/export-order-tv.png");
+        this.load.image("order-ui", "/assets/export-order-ui.png");
         this.load.image("piece-circle", "/assets/export-piece-circle.png");
         this.load.image("piece-square", "/assets/export-piece-square.png");
         this.load.image("piece-triangle", "/assets/export-piece-triangle.png");
@@ -151,16 +164,15 @@ export class MainScene extends BaseScene {
         this.load.image("player-innertube", "/assets/export-player-innertube.png");
         this.load.image("player-tube-2", "/assets/export-player-tube-2.png");
         this.load.image("player-tube1", "/assets/export-player-tube1.png");
+        this.load.image("preview-full", "/assets/export-preview-full.png");
+        this.load.image("progress-bar", "/assets/export-progress-bar.png");
         this.load.image("rocket-base-1", "/assets/export-rocket-base-1.png");
         this.load.image("rocket-mid-1", "/assets/export-rocket-mid-1.png");
         this.load.image("rocket-tip-1", "/assets/export-rocket-tip-1.png");
+        this.load.image("single-rocket", "/assets/export-single-rocket.png");
+        this.load.image("splash-particle-1", "/assets/export-splash-particle-1.png");
         this.load.image("top", "/assets/export-top.png");
         this.load.image("water", "/assets/export-water.png");
-        this.load.image("order-ui", "/assets/export-order-ui.png");
-        this.load.image("splash-particle-1", "/assets/export-splash-particle-1.png");
-        this.load.image("progress-bar", "/assets/export-progress-bar.png");
-        this.load.image("frame", "/assets/export-frame.png");
-        this.load.image("single-rocket", "/assets/export-single-rocket.png");
 
 
         this.load.spritesheet("explode", "/assets/animations/explode.png", {
