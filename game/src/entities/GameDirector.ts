@@ -8,13 +8,11 @@ import { GrabbablePieceType, Piece, PIECES, PieceType } from './Piece';
 export class GameDirector {
     availablePiecePool: PieceType[] = [
         PIECES.base1,
-        PIECES.mid1,
         PIECES.tip1
     ];
 
     recipes: Recipe[] = [
         RECIPES.BASIC,
-        RECIPES.BASIC_FULL
     ];
 
     pieceSpawnRate = 750;
@@ -23,11 +21,6 @@ export class GameDirector {
     conveyorRate = 11000;
 
     constructor(public scene: MainScene) {
-        scene.time.addEvent({
-            callback: this.tick.bind(this),
-            repeat: -1,
-            delay: 16,
-        })
     }
 
     tick() {
@@ -42,13 +35,18 @@ export class GameDirector {
         const pieces = this.scene.player.piecesInCenter;
 
         if (pieces.length === 0) return true;
+        if (pieces.length > 3) return false;
+
+        let isValid = false;
 
         // Find at least 1 matching order
         for (let order of this.scene.orders) {
+            if (order.completed) continue;
+
             let matchesOrder = true;
+            const recipePieces = order.recipe.pieces;
 
             for (let i = 0; i < pieces.length; i++) {
-                const recipePieces = order.recipe.pieces;
                 if (i >= recipePieces.length) continue;
                 if (recipePieces[i] != pieces[i].pieceType) {
                     matchesOrder = false;
@@ -56,16 +54,20 @@ export class GameDirector {
             }
 
             if (matchesOrder) {
-                this.completeOrder(order);
-                return true;
+                if (recipePieces.length === pieces.length) {
+                    this.completeOrder(order);
+                }
+                isValid = true;
             }
         }
 
-        return false;
+        return isValid;
     }
 
     completeOrder(order: Order) {
         console.log("Order complete")
+        order.complete();
+        this.scene.player.takeOff();
     }
 
     newOrder() {

@@ -1,4 +1,4 @@
-import debugService from "../debugService";
+import graphicsService from "../graphicsService";
 import globals from "../globals";
 import helpers from "../helpers";
 import { BaseScene } from "../scenes/BaseScene";
@@ -101,42 +101,81 @@ export class Player extends Phaser.GameObjects.Container {
             follow: this,
             emitZone: {
                 type: 'edge',
-                source: new Phaser.Geom.Ellipse(0, 0, 25, 18),
+                source: new Phaser.Geom.Ellipse(0, 0, 50, 40),
                 quantity: 40
             },
-            frequency: 10,
+            frequency: 20,
             speed: 30,
             blendMode: Phaser.BlendModes.ADD,
-            alpha: 0.3,
-            lifespan: 600
+            alpha: 0.1,
+            lifespan: 400,
+            scale: {
+                min: 0.3,
+                max: 2
+            }
         });
 
         particles.createEmitter({
             follow: this,
             emitZone: {
                 type: 'edge',
-                source: new Phaser.Geom.Ellipse(0, 0, 25, 18),
+                source: new Phaser.Geom.Ellipse(0, 0, 50, 40),
                 quantity: 40
             },
-            frequency: 5,
+            frequency: 25,
             speed: 30,
             blendMode: Phaser.BlendModes.ADD,
-            alpha: 0.6,
-            lifespan: 600
+            alpha: 0.1,
+            lifespan: 400,
+            scale: {
+                min: 0.4,
+                max: 2
+            }
         });
+    }
+
+    takeOff() {
+        const pcs = [...this.piecesInCenter];
+        this.piecesInCenter = [];
+
+        pcs[0].startThruster();
+
+        for(let p of pcs) {
+            p.tintFill = true;
+            p.setTint(0x00FF00);
+        }
+
+        this.scene.cameras.main.shake(1300, 0.004);
+
+        this.scene.time.delayedCall(300, () => {
+            for (let p of pcs) {
+                p.setTint(0xFFFFFF);
+                this.scene.tweens.add({
+                    targets: p,
+                    y: p.y - 300,
+                    delay: 0,
+                    duration: 1700,
+                    ease: Phaser.Math.Easing.Quadratic.In,
+                });
+            }
+            this.scene.time.delayedCall(1700, () => {
+                this.scene.cameras.main.shake(200, 0.02);
+            });
+        })
+
     }
 
     explode() {
         // if (this.exploding) return;
         // this.exploding = true;
 
-        const pcs = [...this.piecesInCenter];
 
+        const pcs = [...this.piecesInCenter];
         this.piecesInCenter = [];
 
         for (let p of pcs) {
             p.tintFill = true;
-            p.setTintFill(0xFFFFFF)
+            p.setTintFill(0xFF0000)
         }
 
         const blinkTime = 125;
@@ -159,9 +198,10 @@ export class Player extends Phaser.GameObjects.Container {
                         }
                         this.scene.time.delayedCall(blinkTime, () => {
                             helpers.explosion(globals.WIDTH / 2, globals.HEIGHT / 2, this.scene)
+                            this.scene.cameras.main.shake(200, 0.025)
                             for (let p of pcs) {
                                 p.tintFill = true;
-                                p.setTintFill(0, 0, 0, 0)
+                                p.setTint(0)
                                 p.exploding = true;
                                 p.flyOffAngle = Math.random() * 2 * Math.PI;
                                 p.flyOffSpeed = 5 + (Math.random() * 3);
@@ -296,7 +336,7 @@ export class Player extends Phaser.GameObjects.Container {
                 theta = Math.atan2(dy, dx) + Math.PI;
                 // magnitude = helpers.dist(this, cp);
                 magnitude = 100;
-                debugService.circle(cp.x, cp.y, 20, 0xFFaa00)
+                graphicsService.circle(cp.x, cp.y, 30, 0xFFaa00)
             } else {
                 theta = 3 * Math.PI / 2;
                 magnitude = 25;
@@ -375,7 +415,7 @@ export class Player extends Phaser.GameObjects.Container {
 
         if (time - this.lastSplashAt > 250) {
             this.lastSplashAt = time;
-            for(let tp of this.tubePieces) {
+            for (let tp of this.tubePieces) {
                 if (Math.random() > 0.5) {
                 }
             }

@@ -74,6 +74,7 @@ export class Piece extends Phaser.GameObjects.Sprite {
     exploding: boolean = false;
     flyOffAngle: number;
     flyOffSpeed: number;
+    particles: Phaser.GameObjects.Particles.ParticleEmitterManager;
 
     get grabbable() {
         return !this.pieceType.conveyor && this.t > 0.05 && this.t < 0.95 && !this.grabbed;
@@ -88,6 +89,43 @@ export class Piece extends Phaser.GameObjects.Sprite {
         this.currentNodeIdx %= this.conveyor.length;
     }
 
+    startThruster() {
+        this.particles = this.scene.add.particles("splash-particle-1");
+        this.particles.createEmitter({
+            follow: this,
+            frequency: 50,
+            speed: 100,
+            blendMode: Phaser.BlendModes.ADD,
+            alpha: 1,
+            lifespan: 400,
+            angle: {
+                min: 70,
+                max: 110
+            },
+            scale: {
+                min: 2,
+                max: 5
+            },
+        });
+        this.particles.createEmitter({
+            follow: this,
+            frequency: 50,
+            speed: 100,
+            blendMode: Phaser.BlendModes.ADD,
+            alpha: 1,
+            lifespan: 400,
+            angle: {
+                min: 70,
+                max: 110
+            },
+            scale: {
+                min: 2,
+                max: 5
+            },
+            tint: 0xFF4444,
+        });
+    }
+
     constructor(
         scene: BaseScene,
         pieceType: PieceType,
@@ -96,7 +134,7 @@ export class Piece extends Phaser.GameObjects.Sprite {
         public spawnTime: number,
         public depth: number = 0
     ) {
-        super(scene, 0, 0, pieceType.spriteKey);
+        super(scene, -100, -100, pieceType.spriteKey);
         scene.add.existing(this);
         this.pieceType = pieceType;
         this.setOrigin(0.5, 0.5)

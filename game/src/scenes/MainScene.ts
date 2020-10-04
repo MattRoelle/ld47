@@ -1,7 +1,7 @@
 import * as Phaser from 'phaser';
 import * as _ from 'lodash';
 import globals from '../globals';
-import debugService from '../debugService';
+import graphicsService from '../graphicsService';
 import { Player } from '../entities/Player';
 import { BaseScene } from './BaseScene';
 import { Piece, PIECES, PieceType } from '../entities/Piece';
@@ -52,11 +52,11 @@ export class MainScene extends BaseScene {
 
         const conveyorBase = this.centerOriginSprite("bg-conveyor-base");
         conveyorBase.setDepth(-300000000000)
-        this.centerOriginSprite("bg-water-1");
+        this.centerOriginSprite("bg-water");
         this.centerOriginSprite("top");
 
         this.player = new Player(this, 6500);
-        debugService.init(this);
+        graphicsService.init(this);
 
         this.director = new GameDirector(this);
 
@@ -99,14 +99,14 @@ export class MainScene extends BaseScene {
             skipMissedFrames: true,
             delay: 0,
             repeat: 0,
-            repeatDelay: 0
+            repeatDelay: 0,
         });
     }
 
     update(time: number, delta: number) {
 
         delta /= 16;
-        debugService.update(this);
+        graphicsService.update(this);
         this.player.update(time, delta);
 
         for (let p of this.pieces) {
@@ -123,13 +123,16 @@ export class MainScene extends BaseScene {
         for(let u of this.orders) {
             u.update(time, delta);
         }
+        this.orders = this.orders.filter(p => !p.dead);
+
+        this.director.tick();
     }
 
 
     preload() {
         this.load.image("bg-conveyor-base", "/assets/export-bg-conveyor-base.png");
         this.load.image("bg-top-1", "/assets/export-bg-top-1.png");
-        this.load.image("bg-water-1", "/assets/export-bg-water-1.png");
+        this.load.image("bg-water", "/assets/export-bg-water.png");
         this.load.image("bg", "/assets/export-bg.png");
         this.load.image("center-plate", "/assets/export-center-plate.png");
         this.load.image("claw-base", "/assets/export-claw-base.png");
