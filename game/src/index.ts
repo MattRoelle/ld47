@@ -7,6 +7,9 @@ const game = new Phaser.Game({
     type: Phaser.WEBGL,
     width: globals.WIDTH,
     height: globals.HEIGHT,
+    scale: {
+        mode: Phaser.Scale.FIT
+    },
     scene: MainScene,
     render: {
         pixelArt: true,
@@ -14,7 +17,7 @@ const game = new Phaser.Game({
     },
     callbacks: {
         postBoot: () => {
-            new ScaleManager(game.canvas, !game.device.os.desktop);
+            // new ScaleManager(game.canvas, !game.device.os.desktop);
         }
     },
 

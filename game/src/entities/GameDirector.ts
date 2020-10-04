@@ -47,13 +47,13 @@ const STAGES: Stage[] = [
             RECIPES.BASIC_FULL,
             RECIPES.BASIC
         ],
-        nOrders: 3,
+        nOrders: 4,
         baseOrderDuration: 20000,
-        conveyorSpeed: 20000,
+        conveyorSpeed: 16000,
         playerRotSpeed: 20,
-        maxOrders: 2,
+        maxOrders: 3,
         orderRate: 5000,
-        pieceSpawnRate: 600,
+        pieceSpawnRate: 1000,
     },
     {
         availablePiecePool: [
@@ -67,11 +67,31 @@ const STAGES: Stage[] = [
             RECIPES.BASIC,
             RECIPES.SINGLE
         ],
-        nOrders: 6,
+        nOrders: 7,
+        baseOrderDuration: 18000,
+        conveyorSpeed: 15000,
+        playerRotSpeed: -22,
+        maxOrders: 4,
+        orderRate: 5000,
+        pieceSpawnRate: 800,
+    },
+    {
+        availablePiecePool: [
+            PIECES.mid1,
+            PIECES.base1,
+            PIECES.tip1,
+            PIECES.single
+        ],
+        recipes: [
+            RECIPES.BASIC_FULL,
+            RECIPES.BASIC,
+            RECIPES.SINGLE
+        ],
+        nOrders: 10,
         baseOrderDuration: 18000,
         conveyorSpeed: 13000,
-        playerRotSpeed: -22,
-        maxOrders: 2,
+        playerRotSpeed: -24,
+        maxOrders: 4,
         orderRate: 5000,
         pieceSpawnRate: 600,
     },

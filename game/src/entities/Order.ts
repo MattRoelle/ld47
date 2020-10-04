@@ -25,12 +25,12 @@ export class Order extends Phaser.GameObjects.Container {
         this.setDepth(50000000000000);
 
         const spr = scene.add.sprite(0, 0, "order-ui")
-        spr.setOrigin(0.5, 0);
+        spr.setOrigin(0, 0.5);
         this.add(spr);
-        let previewY = 45;
+        let previewY = 5;
 
         for (let p of recipe.pieces as GrabbablePieceType[]) {
-            const pieceSprite = scene.add.sprite(0, previewY, p.spriteKey);
+            const pieceSprite = scene.add.sprite(20, previewY, p.spriteKey);
             pieceSprite.setScale(0.6)
             pieceSprite.tintFill = true;
             this.add(pieceSprite)
@@ -57,6 +57,7 @@ export class Order extends Phaser.GameObjects.Container {
         this.completed = true;
         this.scene.tweens.add({
             targets: this,
+            x: -100,
             angle: -180,
             ease: Phaser.Math.Easing.Quadratic.InOut,
             duration: 800,
@@ -75,7 +76,10 @@ export class Order extends Phaser.GameObjects.Container {
         // this.graphics.setBlendMode(Phaser.BlendModes.ADD)
         // this.graphics.setAlpha(0.5)
 
-        this.x = globals.WIDTH * 1.05 * (1 - t);
-        this.y = -5 + (Math.sin(t * 25) * 3);
+        if (!this.completed) {
+            this.x = 0;
+        }
+
+        this.y = globals.HEIGHT * 1.05 * (1 - t);
     }
 }

@@ -42,10 +42,23 @@ export class Player extends Phaser.GameObjects.Container {
     rotationDuration: number = 6500;
     targetRotationDuration: number = 6500;
 
+    mousePos: { x: number; y: number } = { x: 0 , y: 0 };
+
     constructor(
         scene: MainScene,
     ) {
         super(scene, 0, 0);
+
+
+        scene.input.on('pointermove', (ev: any) => {
+            this.mousePos.x = ev.worldX;
+            this.mousePos.y = ev.worldY;
+        })
+
+
+        scene.input.on('mousemove', (ev: any) => {
+            console.log('ev', ev);
+        });
 
         scene.add.existing(this);
         this.pieces = scene.pieces;
@@ -216,7 +229,7 @@ export class Player extends Phaser.GameObjects.Container {
             this.pieces
                 .filter(piece => piece.grabbable)
                 .map(piece => ({
-                    distance: helpers.dist(piece, this),
+                    distance: helpers.dist(piece, this.clawTip),
                     piece
                 }))
                 .filter(piece => piece.distance < 100);
@@ -319,34 +332,41 @@ export class Player extends Phaser.GameObjects.Container {
     calculateClawPosition(delta: number) {
         const cp = this.getClosestPiece();
 
+        if (!!cp) graphicsService.lightCircle(cp.x, cp.y, 30, 0xFFFFFF);
+
         let theta: number;
         let magnitude: number;
 
-        if (this.grabbing) {
+        // if (this.grabbing) {
             const tdx = this.clawTip.x - this.x;
             const tdy = this.clawTip.y - this.y;
             const tTheta = Math.atan2(tdy, tdx);
             theta = tTheta;
-        } else {
-            if (cp) {
-                const dx = this.x - cp.x;
-                const dy = this.y - cp.y;
-                theta = Math.atan2(dy, dx) + Math.PI;
-                // magnitude = helpers.dist(this, cp);
-                magnitude = 100;
-                graphicsService.circle(cp.x, cp.y, 30, 0xFFaa00)
-            } else {
-                theta = 3 * Math.PI / 2;
-                magnitude = 25;
-            }
-        }
+        // } else {
+        //     if (cp) {
+        //         const dx = this.x - cp.x;
+        //         const dy = this.y - cp.y;
+        //         theta = Math.atan2(dy, dx) + Math.PI;
+        //         // magnitude = helpers.dist(this, cp);
+        //         magnitude = 100;
+        //         graphicsService.circle(cp.x, cp.y, 30, 0xFFaa00)
+        //     } else {
+        //         theta = 3 * Math.PI / 2;
+        //         magnitude = 25;
+        //     }
+        // }
 
         this.clawTheta = helpers.lerpRadians(this.clawTheta, theta, delta * 0.075)
 
         // theta = (((Date.now()) % 2000) / 2000) * Math.PI * 2;
         if (!this.grabbing) {
-            this.clawTip.x = helpers.lerp(this.clawTip.x, this.x + Math.cos(this.clawTheta) * 45, delta * 0.2);
-            this.clawTip.y = helpers.lerp(this.clawTip.y, this.y - 10 + Math.sin(this.clawTheta) * 45, delta * 0.2);
+            // this.clawTip.x = helpers.lerp(this.clawTip.x, this.x + Math.cos(this.clawTheta) * 45, delta * 0.2);
+            // this.clawTip.y = helpers.lerp(this.clawTip.y, this.y - 10 + Math.sin(this.clawTheta) * 45, delta * 0.2);
+            // console.log('this.scene.input.mousePointer.worldX', this.scene.input.mousePointer.worldX);
+
+            this.scene.input.mousePointer.updateWorldPoint(this.scene.cameras.main);
+            this.clawTip.x = helpers.lerp(this.clawTip.x, this.mousePos.x, delta * 0.2);
+            this.clawTip.y = helpers.lerp(this.clawTip.y, this.mousePos.y, delta * 0.2);
         } else {
         }
 
@@ -425,6 +445,10 @@ export class Player extends Phaser.GameObjects.Container {
                 if (Math.random() > 0.5) {
                 }
             }
+        }
+
+        if (this.scene.input.mousePointer.isDown) {
+            this.grab();
         }
     }
 }

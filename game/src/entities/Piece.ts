@@ -75,6 +75,8 @@ export class Piece extends Phaser.GameObjects.Sprite {
     flyOffAngle: number;
     flyOffSpeed: number;
     particles: Phaser.GameObjects.Particles.ParticleEmitterManager;
+    highlighted: boolean;
+    highlight: Phaser.GameObjects.Sprite;
 
     get grabbable() {
         return !this.pieceType.conveyor && this.t > 0.05 && this.t < 0.95 && !this.grabbed;
@@ -146,6 +148,10 @@ export class Piece extends Phaser.GameObjects.Sprite {
             this.scene.children.sendToBack(this);
         } else {
             this.setDepth(5000)
+            // this.highlight = scene.add.sprite(0, 0, "highlight").setDepth(5001)
+            // this.highlight.setBlendMode(Phaser.BlendModes.ADD)
+            // this.highlight.setAlpha(0.6);
+            // this.highlight.setMask(new Phaser.Display.Masks.BitmapMask(scene, this))
         }
 
         this.hasSetInitialDirection = false;
@@ -194,6 +200,12 @@ export class Piece extends Phaser.GameObjects.Sprite {
                 this.gotoNextNode();
             }
         }
+
+        // if (this.highlight) {
+        //     this.highlight.setAlpha(this.highlighted && !this.grabbed ? 1 : 0)
+        //     this.highlight.x = this.x;
+        //     this.highlight.y = this.y;
+        // }
     }
 
     die() {

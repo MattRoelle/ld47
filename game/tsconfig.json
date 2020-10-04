@@ -8,6 +8,7 @@
           "node_modules/phaser/types"
       ],
       "lib": [
+        "DOM",
         "ES2019"
       ],
       "allowJs": true,

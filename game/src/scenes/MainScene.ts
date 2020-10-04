@@ -32,6 +32,8 @@ export class MainScene extends BaseScene {
         //@ts-ignore
         window.scene = this;
 
+        this.input.addPointer();
+
         this.f = this.input.keyboard.addKey('f');
         this.f.onDown = (ev) => {
             // @ts-ignore
@@ -85,7 +87,7 @@ export class MainScene extends BaseScene {
 
         for(let g of this.gears) {
                 // @ts-ignore
-                g.speed = 0.8 + Math.random() * 3;
+            g.speed = 0.8 + Math.random() * 3;
         }
 
         this.time.addEvent({
@@ -147,7 +149,9 @@ export class MainScene extends BaseScene {
         graphicsService.update(this);
         this.player.update(time, delta);
 
+        const cp = this.player.getClosestPiece();
         for (let p of this.pieces) {
+            p.highlighted = p === cp;
             p.update(time, delta)
         }
         this.pieces = this.pieces.filter(p => !p.dead);
@@ -206,6 +210,7 @@ export class MainScene extends BaseScene {
         this.load.image("splash-particle-1", "/assets/export-splash-particle-1.png");
         this.load.image("top", "/assets/export-top.png");
         this.load.image("water", "/assets/export-water.png");
+        this.load.image("highlight", "/assets/export-highlight.png");
 
 
         this.load.spritesheet("explode", "/assets/animations/explode.png", {
