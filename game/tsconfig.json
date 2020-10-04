@@ -7,6 +7,9 @@
       "typeRoots": [
           "node_modules/phaser/types"
       ],
+      "lib": [
+        "ES2019"
+      ],
       "allowJs": true,
       "moduleResolution": "node",
       "sourceMap": true

@@ -8,6 +8,7 @@ import { Piece, PIECES, PieceType } from '../entities/Piece';
 import helpers from '../helpers';
 import { GameDirector } from '../entities/GameDirector';
 import { Order } from '../entities/Order';
+import { HealthLight } from '../entities/HealthLight';
 
 const SCREEN_TRANSITION_TIME = 200;
 const BASE_CONVEYOR_SPEED = 12000;
@@ -24,6 +25,8 @@ export class MainScene extends BaseScene {
     orders: Order[] = [];
     director: GameDirector;
     gears: any[];
+    healthLights: HealthLight[];
+    health: number = 5;
 
     create() {
         //@ts-ignore
@@ -139,6 +142,7 @@ export class MainScene extends BaseScene {
             repeatDelay: 0,
         });
 
+
         // this.add
         //     .sprite(410, 210, 'order-tv')
         //     .setDepth(10000000000000000)
@@ -146,6 +150,14 @@ export class MainScene extends BaseScene {
         // this.add
         //     .sprite(410, 50, 'order-tv')
         //     .setDepth(10000000000000000)
+
+        this.healthLights = [
+            new HealthLight(this, 0),
+            new HealthLight(this, 1),
+            new HealthLight(this, 2),
+            new HealthLight(this, 3),
+            new HealthLight(this, 4),
+        ]
     }
 
     update(time: number, delta: number) {
@@ -230,5 +242,8 @@ export class MainScene extends BaseScene {
         });
 
         this.load.image("gear", "/assets/export-gear.png");
+        this.load.image("health-light-glow", "/assets/export-health-light-glow.png");
+        this.load.image("health-light-off", "/assets/export-health-light-off.png");
+        this.load.image("health-light", "/assets/export-health-light.png");
     }
 }

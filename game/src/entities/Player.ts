@@ -379,11 +379,17 @@ export class Player extends Phaser.GameObjects.Container {
         this.ropeGraphics.stroke();
     }
 
+    pos: number = 0;
+    targetRotSpeed: number = -10;
+    rotSpeed: number = -10;
 
     update(time: number, delta: number) {
+        this.rotSpeed = helpers.lerp(this.rotSpeed, this.targetRotSpeed, delta * 0.1);
+        this.pos += this.rotSpeed * delta;
+
         this.rotationDuration = helpers.lerp(this.rotationDuration, this.targetRotationDuration, delta * 0.1);
 
-        const t = (((time - this.pauseTime) % this.rotationDuration) / this.rotationDuration) * Math.PI * 2;
+        const t = ((this.pos % 5000) / 5000) * Math.PI * 2;
         const x = 26 + Math.cos(t) * globals.ARENA_W * (globals.WIDTH / 2);
         const y = 20 + Math.sin(t) * globals.ARENA_H * (globals.HEIGHT / 2);
         const bobY = Math.sin(t * 4) * 0;

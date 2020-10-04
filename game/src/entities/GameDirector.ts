@@ -11,7 +11,7 @@ interface Stage {
     nOrders: number;
     baseOrderDuration: number;
     conveyorSpeed: number;
-    playerSpeed: number;
+    playerRotSpeed: number;
     maxOrders: number;
     orderRate: number;
     pieceSpawnRate: number;
@@ -28,30 +28,49 @@ const STAGES: Stage[] = [
             RECIPES.SINGLE,
             RECIPES.BASIC
         ],
-        nOrders: 1,
-        baseOrderDuration: 18000,
+        nOrders: 2,
+        baseOrderDuration: 20000,
         conveyorSpeed: 16000,
-        playerSpeed: 7500,
+        playerRotSpeed: 15,
         maxOrders: 2,
         orderRate: 5000,
         pieceSpawnRate: 1250,
     },
     {
         availablePiecePool: [
-            PIECES.single,
             PIECES.mid1,
             PIECES.base1,
-            PIECES.tip1
+            PIECES.tip1,
+            PIECES.single,
         ],
         recipes: [
-            RECIPES.SINGLE,
             RECIPES.BASIC_FULL,
             RECIPES.BASIC
         ],
+        nOrders: 3,
+        baseOrderDuration: 20000,
+        conveyorSpeed: 20000,
+        playerRotSpeed: 20,
+        maxOrders: 2,
+        orderRate: 5000,
+        pieceSpawnRate: 600,
+    },
+    {
+        availablePiecePool: [
+            PIECES.mid1,
+            PIECES.base1,
+            PIECES.tip1,
+            PIECES.single
+        ],
+        recipes: [
+            RECIPES.BASIC_FULL,
+            RECIPES.BASIC,
+            RECIPES.SINGLE
+        ],
         nOrders: 6,
-        baseOrderDuration: 15000,
-        conveyorSpeed: 14000,
-        playerSpeed: 3000,
+        baseOrderDuration: 18000,
+        conveyorSpeed: 13000,
+        playerRotSpeed: -22,
         maxOrders: 2,
         orderRate: 5000,
         pieceSpawnRate: 600,
@@ -76,24 +95,45 @@ export class GameDirector {
 
     tick() {
         const t = this.scene.time.now;
-        if (t - this.lastSpawnedPieceAt > this.stage.pieceSpawnRate) {
-            this.lastSpawnedPieceAt = t;
-            this.spawnPiece();
-        }
 
-        if (!this.validateCenter()) {
-            this.scene.player.explode();
-        }
+        if (this.scene.health <= 0) {
 
-        if (this.scene.orders.length < 1) {
-            this.lastOrderSpawnedAt = t;
-            this.newOrder();
-        }
+        } else {
+            if (t - this.lastSpawnedPieceAt > this.stage.pieceSpawnRate) {
+                this.lastSpawnedPieceAt = t;
+                this.spawnPiece();
+            }
 
-        if (t - this.lastOrderSpawnedAt > this.stage.orderRate && this.scene.orders.length < this.stage.maxOrders) {
-            this.lastOrderSpawnedAt = t;
-            this.newOrder();
+            if (!this.validateCenter()) {
+                this.scene.player.explode();
+                this.hurt();
+            }
+
+            for(let o of this.scene.orders) {
+                const dt = t - o.spawnTime;
+                if (dt > o.duration) {
+                    if (!o.failed) {
+                        this.hurt();
+                    }
+                    o.fail();
+                }
+            }
+
+            if (this.scene.orders.length < 1) {
+                this.lastOrderSpawnedAt = t;
+                this.newOrder();
+            }
+
+            if (t - this.lastOrderSpawnedAt > this.stage.orderRate && this.scene.orders.length < this.stage.maxOrders) {
+                this.lastOrderSpawnedAt = t;
+                this.newOrder();
+            }
         }
+    }
+
+    hurt() {
+        this.scene.healthLights[5 - this.scene.health].turnOff();
+        this.scene.health--;
     }
 
     validateCenter() {
@@ -136,7 +176,7 @@ export class GameDirector {
             this.currentStageIdx++;
         }
 
-        this.scene.player.targetRotationDuration = this.stage.playerSpeed;
+        this.scene.player.targetRotSpeed = this.stage.playerRotSpeed;
     }
 
     completeOrder(order: Order) {
@@ -154,6 +194,19 @@ export class GameDirector {
     }
 
     spawnPiece() {
-        this.scene.pieces.push(new Piece(this.scene, helpers.sample(this.stage.availablePiecePool), Math.random() > 0.5 ? 'top' : 'bottom', this.stage.conveyorSpeed, this.scene.time.now));
+        let newPt: PieceType;
+
+        for(let order of this.scene.orders) {
+            for(let rp of order.recipe.pieces) {
+                if (!this.scene.pieces.find((p: any) => p.pieceType === rp)) {
+                    newPt = rp;
+                }
+            }
+        }
+
+        if (!newPt) {
+            newPt = helpers.sample(this.stage.availablePiecePool);
+        }
+        this.scene.pieces.push(new Piece(this.scene, newPt, Math.random() > 0.5 ? 'top' : 'bottom', this.stage.conveyorSpeed, this.scene.time.now));
     }
 }
